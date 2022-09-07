@@ -63,7 +63,7 @@ void init(OptionsMap& o) {
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
-  o["Threads"]               << Option(1, 1, 512, on_threads);
+  o["Threads"]               << Option(1, 1, 1024, on_threads);
   o["Wait ms"]               << Option(0, 0, 100, on_waitms);
   o["RandomEvalPerturb"]     << Option(0, 0, 100, on_eval_perturb);
   o["Search_Nodes"]          << Option(0, 0, 500000);
