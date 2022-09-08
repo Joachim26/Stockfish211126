@@ -193,6 +193,16 @@ void MainThread::search() {
 
   Eval::NNUE::verify();
 
+//SFnps Begin
+
+  if (Options["Search_Nodes"])
+      Limits.nodes = int(Options["Search_Nodes"]);
+
+  if (Options["Search_Depth"])
+      Limits.depth = int(Options["Search_Depth"]);
+
+//SFnps End
+
   if (rootMoves.empty())
   {
       rootMoves.emplace_back(MOVE_NONE);
@@ -303,7 +313,7 @@ void Thread::search() {
   // When playing with strength handicap enable MultiPV search that we will
   // use behind the scenes to retrieve a set of possible moves.
   if (skill.enabled())
-      multiPV = std::max(multiPV, (size_t)4);
+      multiPV = std::max(multiPV, (size_t)5);
 
   multiPV = std::min(multiPV, rootMoves.size());
 
