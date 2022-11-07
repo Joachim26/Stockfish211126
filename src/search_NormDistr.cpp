@@ -1779,7 +1779,7 @@ moves_loop: // When in check, search starts here
     // that moves quality remains consistent with the set skill level.
     float mean = delta * weakness / 2;
     float stddev = mean * 0.25;
-    std::default_random_engine rng;
+    static std::default_random_engine rng(now());
     std::normal_distribution<float> normal(mean, stddev);
 
     // Choose best move. For each move score we add two terms, both dependent on
