@@ -21,6 +21,7 @@
 #include <cmath>
 #include <cstring>   // For std::memset
 #include <iostream>
+#include <random>
 #include <sstream>
 
 #include "evaluate.h"
@@ -101,11 +102,9 @@ namespace {
             level = double(skill_level);
     }
     bool enabled() const { return level < 20.0; }
-    bool time_to_pick(Depth depth) const { return depth == 1 + int(level); }
-    Move pick_best(size_t multiPV);
+    Move pick_move(const RootMoves& rootMoves, size_t multiPV);
 
     double level;
-    Move best = MOVE_NONE;
   };
 
   template <NodeType nodeType>
@@ -453,10 +452,6 @@ void Thread::search() {
       if (!mainThread)
           continue;
 
-      // If skill level is enabled and time is up, pick a sub-optimal best move
-      if (skill.enabled() && skill.time_to_pick(rootDepth))
-          skill.pick_best(multiPV);
-
       // Use part of the gained time from a previous stable move for the current move
       for (Thread* th : Threads)
       {
@@ -516,8 +511,10 @@ void Thread::search() {
 
   // If skill level is enabled, swap best PV line with the sub-optimal one
   if (skill.enabled())
-      std::swap(rootMoves[0], *std::find(rootMoves.begin(), rootMoves.end(),
-                skill.best ? skill.best : skill.pick_best(multiPV)));
+  {
+      auto move = std::find(rootMoves.begin(), rootMoves.end(), skill.pick_move(rootMoves, multiPV));
+      std::swap(rootMoves[0], *move);
+  }
 }
 
 
@@ -1757,25 +1754,31 @@ moves_loop: // When in check, search starts here
   // When playing with strength handicap, choose best move among a set of RootMoves
   // using a statistical rule dependent on 'level'. Idea by Heinz van Saanen.
 
-  Move Skill::pick_best(size_t multiPV) {
-
-    const RootMoves& rootMoves = Threads.main()->rootMoves;
-    static PRNG rng(now()); // PRNG sequence should be non-deterministic
+  Move Skill::pick_move(const RootMoves& rootMoves, size_t multiPV) {
 
     // RootMoves are already sorted by score in descending order
+    Move best = MOVE_NONE;
+    int maxScore = -VALUE_INFINITE;
     Value topScore = rootMoves[0].score;
     int delta = std::min(topScore - rootMoves[multiPV - 1].score, PawnValueMg);
-    int maxScore = -VALUE_INFINITE;
-    double weakness = 120 - 2 * level;
+    double weakness = 130 - 2 * level;
+
+    // Use a normal distribution to not spread too much the random values, so
+    // that moves quality remains consistent with the set skill level.
+    float mean = delta * weakness / 2;
+    float stddev = mean * 0.25;
+    static std::default_random_engine rng(now());
+    std::normal_distribution<float> normal(mean, stddev);
 
     // Choose best move. For each move score we add two terms, both dependent on
     // weakness. One is deterministic and bigger for weaker levels, and one is
-    // random. Then we choose the move with the resulting highest score.
+    // random with a normal probability distribution. Then we choose the move with
+    // the resulting highest score.
     for (size_t i = 0; i < multiPV; ++i)
     {
         // This is our magic formula
-        int push = int((  weakness * int(topScore - rootMoves[i].score)
-                        + delta * (rng.rand<unsigned>() % int(weakness))) / 128);
+        int diff_to_top = topScore - rootMoves[i].score;
+        int push = int((weakness * diff_to_top + normal(rng)) / 128);
 
         if (rootMoves[i].score + push >= maxScore)
         {
