@@ -48,8 +48,8 @@ jobs:
           - {
               name: "Ubuntu 20.04 NDK armv8",
               os: ubuntu-20.04,
-              compiler: aarch64-linux-android21-clang++,
-              comp: ndk,
+              compiler: clang++,
+              comp: clang,
               run_armv8_tests: true,
               shell: 'bash {0}'
             }
