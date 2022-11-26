@@ -1,9 +1,8 @@
 name: Stockfish
 on:
-push:
-  branches:
-    - Test_Action
-
+  push:
+    branches:
+      - Test_Action
   workflow_call:
 jobs:
   Stockfish:
