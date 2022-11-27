@@ -283,7 +283,8 @@ jobs:
           export LDFLAGS="-static -Wno-unused-command-line-argument"
           make clean
           make -j2 ARCH=armv8 build
-          ../tests/signature.sh $benchref
+          #../tests/signature.sh $benchref
+          ./stockfish $benchref
 
       # armv7 tests
 
