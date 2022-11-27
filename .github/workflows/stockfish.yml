@@ -300,7 +300,8 @@ jobs:
           export LDFLAGS="-static -Wno-unused-command-line-argument"
           make clean
           make -j2 ARCH=armv7 build
-          ../tests/signature.sh $benchref
+          #../tests/signature.sh $benchref
+          ./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
       - name: Test armv7-neon build
         if: ${{ matrix.config.run_armv7_tests }}
