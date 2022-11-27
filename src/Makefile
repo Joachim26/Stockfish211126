@@ -444,7 +444,7 @@ ifeq ($(COMP),clang)
 	ifeq ($(arch),$(filter $(arch),armv7 armv8 riscv64))
 		ifeq ($(OS),Android)
 			CXXFLAGS += -m$(bits)
-			LDFLAGS += -m$(bits) -static-libstdc++
+			LDFLAGS += -m$(bits) -static-libstdc++ -ffunction-sections -fdata-sections -Wl
 		endif
 		ifeq ($(ARCH),riscv64)
 			CXXFLAGS += -latomic
