@@ -4,7 +4,7 @@ on:
     branches:
       - master
       - Test_Action
-  workflow_call:
+  #workflow_call:
 jobs:
   Stockfish:
     name: ${{ matrix.config.name }} ${{ matrix.binaries }}
