@@ -488,7 +488,7 @@ ifeq ($(COMP),ndk)
 			STRIP=llvm-strip
 		endif
 	endif
-	LDFLAGS += -static-libstdc++ -pie -lm -latomic
+	LDFLAGS += -static-libstdc++ -pie -lm -latomic -lpthread
 endif
 
 ifeq ($(comp),icc)
