@@ -2,6 +2,7 @@ name: Stockfish
 on:
   push:
     branches:
+      - master
       - Test_Action
   workflow_call:
 jobs:
