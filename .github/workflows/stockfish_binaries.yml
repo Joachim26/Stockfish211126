@@ -1,10 +1,5 @@
 name: Stockfish
-on:
-  push:
-    branches:
-      - master
-      - Test_Action
-  #workflow_call:
+on: [push]
 jobs:
   Stockfish:
     name: ${{ matrix.config.name }} ${{ matrix.binaries }}
