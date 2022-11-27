@@ -2,13 +2,7 @@ name: Stockfish
 on:
   push:
     branches:
-      - master
       - Test_Actions
-      - github_ci
-  pull_request:
-    branches:
-      - master
-      - tools
 jobs:
   Stockfish:
     name: ${{ matrix.config.name }}
@@ -284,7 +278,7 @@ jobs:
           make clean
           make -j2 ARCH=armv8 build
           #../tests/signature.sh $benchref
-          ./stockfish $benchref
+          ./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
       # armv7 tests
 
