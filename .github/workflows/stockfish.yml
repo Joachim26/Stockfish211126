@@ -52,7 +52,7 @@ jobs:
               os: ubuntu-20.04,
               compiler: armv7a-linux-androideabi21-clang++,
               comp: ndk,
-              run_armv7_tests: false,
+              run_armv7_tests: true,
               shell: 'bash {0}'
             }
           - {
