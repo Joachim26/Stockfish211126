@@ -322,7 +322,7 @@ jobs:
           make clean
           make -j2 ARCH=armv7-neon build
           #../tests/signature.sh $benchref
-          stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+          ./stockfish bench
 
       # Other tests
 
