@@ -146,7 +146,7 @@ vnni256 = no
 vnni512 = no
 neon = no
 arm_version = 0
-STRIP = strip
+#STRIP = strip
 
 ### 2.2 Architecture specific
 
@@ -475,8 +475,7 @@ ifeq ($(COMP),ndk)
 		CXX=armv7a-linux-androideabi16-clang++
 		CXXFLAGS += -mthumb -march=armv7-a -mfloat-abi=softfp -mfpu=neon
 		ifneq ($(shell which arm-linux-androideabi-strip 2>/dev/null),)
-#			STRIP=arm-linux-androideabi-strip
-                        STRIP=llvm-strip
+			STRIP=arm-linux-androideabi-strip
 		else
 			STRIP=llvm-strip
 		endif
@@ -484,8 +483,7 @@ ifeq ($(COMP),ndk)
 	ifeq ($(arch),armv8)
 		CXX=aarch64-linux-android21-clang++
 		ifneq ($(shell which aarch64-linux-android-strip 2>/dev/null),)
-#			STRIP=aarch64-linux-android-strip
-                        STRIP=llvm-strip
+			STRIP=aarch64-linux-android-strip
 		else
 			STRIP=llvm-strip
 		endif
