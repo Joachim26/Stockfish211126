@@ -146,7 +146,7 @@ vnni256 = no
 vnni512 = no
 neon = no
 arm_version = 0
-#STRIP = strip
+STRIP = strip
 
 ### 2.2 Architecture specific
 
