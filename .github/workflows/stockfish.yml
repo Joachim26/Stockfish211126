@@ -288,7 +288,7 @@ jobs:
           cd ./arm64-v8a
           pwd
           ls -all
-          cp Stockfish ../../src/
+          cp Stockfish ../../src/stockfish
           cd ../../src/
           pwd
           ls -all
