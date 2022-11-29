@@ -280,8 +280,10 @@ jobs:
           #make -j2 ARCH=armv8 build
           cd ../jni
           ndk-build
-          cd $home/Stockfish
+          pwd
           ls -l
+          echo "XXXXXXXXX"
+          cd $home/Stockfish
           cd libs/arm64-v8a
           ./Stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
