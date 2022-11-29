@@ -293,8 +293,8 @@ jobs:
           pwd
           ls -all
           echo "XXXXXXXXXX Start after ndk-build XXXXXXXXXX"
-          #./Stockfish bench >> BenchResults.txt
-          ../tests/signature.sh $benchref
+          ./stockfish bench >> BenchResults.txt
+          #../tests/signature.sh $benchref
           
       # armv7 tests
 
