@@ -276,10 +276,10 @@ jobs:
           export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          #make clean
-          #make -j2 ARCH=armv8 build
+          make clean
           cd ../jni
           ndk-build
+          make -j2 ARCH=armv8 build
           cd ../libs/arm64-v8a
           ./Stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
