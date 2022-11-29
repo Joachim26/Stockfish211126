@@ -299,7 +299,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          path: ./stockfish
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
 
       # armv7 tests
 
