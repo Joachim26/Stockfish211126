@@ -280,7 +280,7 @@ jobs:
           #cd ../jni
           #ndk-build
           #cd ../libs/arm64-v8a
-          ./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+          #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
       # armv7 tests
 
