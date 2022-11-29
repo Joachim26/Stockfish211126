@@ -276,6 +276,10 @@ jobs:
           export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
+          make clean
+          make -j2 ARCH=armv8 build
+          #echo "XXXXXXXXXX Start with embedded net after make XXXXXXXXXX"
+          #./stockfish bench >> BenchResults.txt
           cd ../jni
           ndk-build
           pwd
@@ -284,13 +288,13 @@ jobs:
           cd ./arm64-v8a
           pwd
           ls -all
-          echo "XXXXXXXXXX Start with embedded net after ndk_build XXXXXXXXXX"
+          cp Stockfish ../../src/
+          cd ../../src/
+          pwd
+          ls -all
+          echo "XXXXXXXXXX Start with net after ndk_build XXXXXXXXXX"
           ./Stockfish bench >> BenchResults.txt
-          make clean
-          make -j2 ARCH=armv8 build
-          echo "XXXXXXXXXX Start with embedded net after make XXXXXXXXXX"
-          ./stockfish bench >> BenchResults.txt
-
+          
       # armv7 tests
 
       - name: Test armv7 build
