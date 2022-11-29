@@ -273,14 +273,14 @@ jobs:
           SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
           ndkDefaultFullVersion=$(get_full_ndk_version "23")
           ln -sf $ANDROID_SDK_ROOT/ndk/$ndkDefaultFullVersion $ANDROID_NDK_ROOT
-          export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+          export PATH=$ANDROID_NDK_HOME:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          make clean
-          make -j2 ARCH=armv8 build
-          #cd ../jni
-          #ndk-build
-          #cd ../libs/arm64-v8a
-          ./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+          #make clean
+          #make -j2 ARCH=armv8 build
+          cd ../jni
+          ndk-build
+          cd ../libs/arm64-v8a
+          ./Stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
 
       # armv7 tests
 
