@@ -286,8 +286,8 @@ jobs:
           cd ./arm64-v8a
           pwd
           ls -all
-          echo "XXXXXXXXXX Let's start classical without net XXXXXXXXXX"
-          ./Stockfish bench 16 1 13 default depth classical >> BenchResults.txt
+          echo "XXXXXXXXXX Let's start with embedded net XXXXXXXXXX"
+          ./Stockfish bench >> BenchResults.txt
 
       # armv7 tests
 
