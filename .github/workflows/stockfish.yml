@@ -283,9 +283,11 @@ jobs:
           pwd
           cd ../libs
           pwd
-          cd arm64-v8a
-          echo "XXXXLet's start without netXXXXX"
-          ./Stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+          cd ./arm64-v8a
+          pwd
+          ls -all
+          echo "XXXXXXXXXX Let's start classical without net XXXXXXXXXX"
+          ./Stockfish bench 16 1 13 default depth classical >> BenchResults.txt
 
       # armv7 tests
 
