@@ -288,7 +288,7 @@ jobs:
           cd ./arm64-v8a
           #pwd
           #ls -all
-          cp Stockfish ../../src/stockfish
+          #cp Stockfish ../../src/stockfish
           cd ../../src/
           pwd
           #ls -all
@@ -300,7 +300,7 @@ jobs:
         if: failure()
         with:
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
-
+          
       # armv7 tests
 
       - name: Test armv7 build
