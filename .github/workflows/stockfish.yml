@@ -276,24 +276,17 @@ jobs:
           export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          #make clean
-          #make -j2 ARCH=armv8 build
-          #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
-          #XXXXXXXXXXXXXXXX./stockfish bench >> BenchResults.txt
+          make clean
+          make -j2 ARCH=armv8 build
+          echo "XXXXXXXXXX Start after make XXXXXXXXXX"
+          ./stockfish bench >> BenchResults.txt
+          #../tests/signature.sh $benchref
           cd ../jni
           ndk-build
-          #pwd
-          cd ../libs
-          #pwd
-          cd ./arm64-v8a
-          #pwd
-          #ls -all
+          cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfish
           cd ../../src/
-          pwd
-          #ls -all
           echo "XXXXXXXXXX Start after ndk-build XXXXXXXXXX"
-          pwd
           ./stockfish bench >> BenchResults.txt
           #../tests/signature.sh $benchref
       - uses: actions/upload-artifact@v3
