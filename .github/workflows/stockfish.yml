@@ -91,7 +91,7 @@ jobs:
           cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
-          cp Stockfish ../../src/stockfish
+          cp Stockfish ../../src/stockfishv8
           cd ../../src/
           echo "XXXXXXXXXX Start after ndk-build XXXXXXXXXX"
           #./stockfish bench >> BenchResults.txt
@@ -99,7 +99,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         #if: failure()
         with:
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfishv8
           
       # armv7 tests
 
@@ -127,12 +127,12 @@ jobs:
           cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
-          cp Stockfish ../../src/stockfish
+          cp Stockfish ../../src/stockfishv7
           cd ../../src/
       - uses: actions/upload-artifact@v3
         #if: failure()
         with:
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfishv7
 
       - name: Test armv7-neon build
         if: ${{ matrix.config.run_armv7_tests }}
