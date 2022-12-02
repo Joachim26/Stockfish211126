@@ -85,8 +85,8 @@ jobs:
           export LDFLAGS="-static -Wno-unused-command-line-argument"
           make clean
           make -j2 ARCH=armv8 build
-          echo "XXXXXXXXXX Start after make XXXXXXXXXX"
-          ./stockfish bench >> BenchResults.txt
+          #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
+          #./stockfish bench >> BenchResults.txt
           #../tests/signature.sh $benchref
           cd ../jni
           ndk-build
@@ -94,7 +94,7 @@ jobs:
           cp Stockfish ../../src/stockfish
           cd ../../src/
           echo "XXXXXXXXXX Start after ndk-build XXXXXXXXXX"
-          ./stockfish bench >> BenchResults.txt
+          #./stockfish bench >> BenchResults.txt
           #../tests/signature.sh $benchref
       - uses: actions/upload-artifact@v3
         if: failure()
