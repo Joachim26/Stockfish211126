@@ -117,14 +117,20 @@ jobs:
           SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
           ndkDefaultFullVersion=$(get_full_ndk_version "23")
           ln -sf $ANDROID_SDK_ROOT/ndk/$ndkDefaultFullVersion $ANDROID_NDK_ROOT
+          export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          make clean
-          make -j2 ARCH=armv7 build
-          ../tests/signature.sh $benchref
+          #make clean
+          #make -j2 ARCH=armv7 build
+          #../tests/signature.sh $benchref
           #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+          cd ../jni
+          ndk-build
+          cd ../libs/arm64-v8a
+          cp Stockfish ../../src/stockfish
+          cd ../../src/
       - uses: actions/upload-artifact@v3
-        if: failure()
+        #if: failure()
         with:
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
 
