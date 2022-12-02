@@ -124,7 +124,7 @@ jobs:
           ../tests/signature.sh $benchref
           #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
       - uses: actions/upload-artifact@v3
-        #if: failure()
+        if: failure()
         with:
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish
 
