@@ -88,7 +88,7 @@ jobs:
                #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
                #./stockfish bench >> BenchResults.txt
                #../tests/signature.sh $benchref
-          cd ../jni_8
+          cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfishv8
@@ -124,7 +124,7 @@ jobs:
                #make -j2 ARCH=armv7 build
                #../tests/signature.sh $benchref
                #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
-          cd ../jni_8
+          cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfishv7
