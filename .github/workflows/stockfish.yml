@@ -124,7 +124,7 @@ jobs:
                #make -j2 ARCH=armv7 build
                #../tests/signature.sh $benchref
                #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
-          cd ../jni_v8
+          cd ../jni_8
           ndk-build
           cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfishv7
