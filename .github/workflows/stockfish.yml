@@ -88,14 +88,14 @@ jobs:
                #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
                #./stockfish bench >> BenchResults.txt
                #../tests/signature.sh $benchref
-          cd ../jni
+          cd ../jni_8
           ndk-build
           cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfishv8
           cd ../../src/
           echo "XXXXXXXXXX Start after ndk-build XXXXXXXXXX"
-          #./stockfish bench >> BenchResults.txt
-          #../tests/signature.sh $benchref
+               #./stockfish bench >> BenchResults.txt
+               #../tests/signature.sh $benchref
       - uses: actions/upload-artifact@v3
         #if: failure()
         with:
@@ -124,7 +124,7 @@ jobs:
                #make -j2 ARCH=armv7 build
                #../tests/signature.sh $benchref
                #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
-          cd ../jni
+          cd ../jni_v8
           ndk-build
           cd ../libs/arm64-v8a
           cp Stockfish ../../src/stockfishv7
