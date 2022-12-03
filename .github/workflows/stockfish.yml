@@ -83,11 +83,11 @@ jobs:
           export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          #make clean
-          #make -j2 ARCH=armv8 build
-          #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
-          #./stockfish bench >> BenchResults.txt
-          #../tests/signature.sh $benchref
+               #make clean
+               #make -j2 ARCH=armv8 build
+               #echo "XXXXXXXXXX Start after make XXXXXXXXXX"
+               #./stockfish bench >> BenchResults.txt
+               #../tests/signature.sh $benchref
           cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
@@ -120,10 +120,10 @@ jobs:
           export PATH=$ANDROID_NDK_HOME:$PATH
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
-          #make clean
-          #make -j2 ARCH=armv7 build
-          #../tests/signature.sh $benchref
-          #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
+               #make clean
+               #make -j2 ARCH=armv7 build
+               #../tests/signature.sh $benchref
+               #./stockfish bench 16 1 13 default depth nnue >> BenchResults.txt
           cd ../jni
           ndk-build
           cd ../libs/arm64-v8a
@@ -133,24 +133,3 @@ jobs:
         #if: failure()
         with:
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfishv7
-
-      - name: Test armv7-neon build
-        if: ${{ matrix.config.run_armv7_tests }}
-        run: |
-          function get_full_ndk_version {
-            majorVersion=$1
-            ndkFullVersion=$($SDKMANAGER --list | grep "ndk;${majorVersion}.*" | awk '{gsub("ndk;", ""); print $1}' | sort -V | tail -n1)
-            echo "$ndkFullVersion"
-          }
-          ANDROID_ROOT=/usr/local/lib/android
-          ANDROID_SDK_ROOT=${ANDROID_ROOT}/sdk
-          ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk-bundle
-          SDKMANAGER=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager
-          ndkDefaultFullVersion=$(get_full_ndk_version "23")
-          ln -sf $ANDROID_SDK_ROOT/ndk/$ndkDefaultFullVersion $ANDROID_NDK_ROOT
-          export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
-          export LDFLAGS="-static -Wno-unused-command-line-argument"
-          make clean
-          make -j2 ARCH=armv7-neon build
-          #../tests/signature.sh $benchref
-          #./stockfish bench
