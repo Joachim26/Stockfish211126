@@ -128,7 +128,7 @@ jobs:
           cd ../jni
           cp Application_v7.mk Application.mk
           ndk-build
-          cd ../libs/arm64-v8a
+          cd ../libs/armeabi-v7a
           cp Stockfish ../../src/stockfishv7
           cd ../../src/
       - uses: actions/upload-artifact@v3
