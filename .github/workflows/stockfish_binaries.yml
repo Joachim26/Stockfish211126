@@ -41,14 +41,6 @@ jobs:
               shell: 'msys2 {0}',
               ext: .exe
             }
-        binaries:
-          - x86-64
-          - x86-64-modern
-          - x86-64-avx2
-        exclude:
-          - binaries: x86-64-avx2
-            config: {os: macos-12}
-
           - {
               name: "Ubuntu 20.04 NDK armv8",
               os: ubuntu-20.04,
@@ -65,8 +57,13 @@ jobs:
               run_armv7_tests: false,
               shell: 'bash {0}'
             }
-
-
+        binaries:
+          - x86-64
+          - x86-64-modern
+          - x86-64-avx2
+        exclude:
+          - binaries: x86-64-avx2
+            config: {os: macos-12}
 
     defaults:
       run:
