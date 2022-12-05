@@ -92,6 +92,7 @@ jobs:
           #Net is here, for tests
           cd ../../src/
       - uses: actions/upload-artifact@v3
+        if: ${{ matrix.config.run_armv8_tests }}
         with:
           name: SFnps_armv8
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_armv8
@@ -124,6 +125,7 @@ jobs:
           #Net is here, for tests
           cd ../../src/
       - uses: actions/upload-artifact@v3
+        if: ${{ matrix.config.run_armv7_tests }}
         with:
           name: SFnps_armv7
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_armv7
