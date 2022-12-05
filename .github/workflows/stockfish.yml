@@ -92,6 +92,7 @@ jobs:
           cd ../../src/
       - uses: actions/upload-artifact@v3
         with:
+        name: SFnps_armv8
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfishv8
           
       # armv7 tests
@@ -122,4 +123,5 @@ jobs:
           cd ../../src/
       - uses: actions/upload-artifact@v3
         with:
+        name: SFnps_armv7
           path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfishv7
