@@ -82,7 +82,7 @@ jobs:
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
 
-          make net
+          #make net
           cp nn-*.nnue ../jni
           cd ../jni
           cp Application_v8.mk Application.mk
@@ -118,7 +118,7 @@ jobs:
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
           export LDFLAGS="-static -Wno-unused-command-line-argument"
     
-          make net
+          #make net
           cp nn-*.nnue ../jni
           cd ../jni
           cp Application_v7.mk Application.mk
