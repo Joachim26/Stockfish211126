@@ -30,6 +30,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Download qemu-user packages
+        run: sudo apt install qemu-user
+
       - name: Download the used network from the fishtest framework
         run: make net
 
@@ -63,7 +66,7 @@ jobs:
             cp Stockfish ../../src/SFnps_armv8
             #Net is in /src and /jni for tests
             cd ../../src/
-            #./SFnps_armv8 bench >> BenchOutput8.txt
+            ./SFnps_armv8 bench >> BenchOutput8.txt
 
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_armv8_tests }}
