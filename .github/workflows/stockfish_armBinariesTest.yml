@@ -31,7 +31,9 @@ jobs:
           fetch-depth: 0
 
       - name: Download qemu-user packages
-        run: sudo apt install qemu-user
+        run: |
+          sudo apt update
+          sudo apt install qemu-user
 
       - name: Download the used network from the fishtest framework
         run: make net
