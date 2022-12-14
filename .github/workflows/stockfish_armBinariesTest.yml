@@ -57,7 +57,7 @@ jobs:
             echo "ANDROID_NDK_BIN=$ANDROID_NDK_BIN" >> $GITHUB_ENV
             export PATH=$ANDROID_NDK_HOME:$PATH
             export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
-            export LDFLAGS="-static -Wno-unused-command-line-argument"
+            #export LDFLAGS="-static -Wno-unused-command-line-argument"
 
             #make net
             cp nn-*.nnue ../jni
