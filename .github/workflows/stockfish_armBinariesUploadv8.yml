@@ -60,6 +60,12 @@ jobs:
             cd ../libs/arm64-v8a
             cp Stockfish ../../src/SFnps_armv8
             cd ../../src/
+            
+      - uses: actions/upload-artifact@v3
+        if: ${{ matrix.config.run_armv8_tests }}
+        with:
+          name: SFnps-armv8
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_armv8
        
       - name: win11 build
         if: ${{ matrix.config.run_win11_tests }}
@@ -67,19 +73,13 @@ jobs:
           make clean
           make -j2 build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          # mv ./stockfish.exe ./SFnps_modern.exe
-
-      - uses: actions/upload-artifact@v3
-        if: ${{ matrix.config.run_armv8_tests }}
-        with:
-          name: SFnps-armv8
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_armv8
+          mv ./stockfish.exe ./SFnps_modern.exe
           
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_win11_tests }}
         with:
           name: SFnps-modern
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish.exe   
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_modern.exe   
           
           
           
