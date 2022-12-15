@@ -47,14 +47,6 @@ jobs:
 
       - name: Test armv8 build
         run: |
-            NDKV="21.4.7075529"
-            ANDROID_ROOT=/usr/local/lib/android
-            ANDROID_SDK_ROOT=$ANDROID_ROOT/sdk
-            SDKMANAGER=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager
-            echo "y" | $SDKMANAGER "ndk;$NDKV"
-            ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/$NDKV
-            ANDROID_NDK_BIN=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin
-            echo "ANDROID_NDK_BIN=$ANDROID_NDK_BIN" >> $GITHUB_ENV
             export PATH=$ANDROID_NDK_HOME:$PATH
             export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
             #export LDFLAGS="-static -Wno-unused-command-line-argument"
