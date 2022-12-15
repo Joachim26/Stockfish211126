@@ -69,7 +69,7 @@ jobs:
           make clean
           make -j2 build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          cp stockfish SFnps_modern.exe
+          cp stockfish.exe SFnps_modern.exe
 
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_armv8_tests }}
