@@ -71,7 +71,7 @@ jobs:
         run: |
           make clean
           make -j2 build ARCH=x86-64-modern COMP=$COMP
-          make strip ARCH=x86-64-modern COMP=$COMP
+          # make strip ARCH=x86-64-modern COMP=$COMP
           # mv ./stockfish.exe ./SFnps_modern.exe
           
       - uses: actions/upload-artifact@v3
