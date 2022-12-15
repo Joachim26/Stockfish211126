@@ -15,7 +15,7 @@ jobs:
             os: ubuntu-22.04
             compiler: aarch64-linux-android21-clang++
             comp: ndk
-            run_armv8_tests: false
+            run_armv8_tests: true
             shell: bash {0}
             
           - name: Windows 2022 Mingw-w64 GCC x86_64
@@ -72,12 +72,12 @@ jobs:
           make clean
           make -j2 build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          # mv ./stockfish.exe ./SFnps_modern.exe
+          mv stockfish.exe SFnps_modern.exe
           
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_win11_tests }}
         with:
           name: SFnps-modern
-          path: D:\a\StockfishNPS\StockfishNPS\src\stockfish.exe   
+          path: D:\a\StockfishNPS\StockfishNPS\src\SFnps_modern.exe   
           
           
