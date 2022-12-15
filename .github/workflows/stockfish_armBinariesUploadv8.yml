@@ -7,8 +7,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     env:
       COMPILER: ${{ matrix.config.compiler }}
-      COMP: ${{ matrix.config.comp }}
-      CXXFLAGS: 
+      COMP: ${{ matrix.config.comp }} 
     strategy:
       matrix:
         config:
@@ -79,7 +78,6 @@ jobs:
         if: ${{ matrix.config.run_win11_tests }}
         with:
           name: SFnps-modern
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_modern.exe   
-          
+          path: /d/a/StockfishNPS/StockfishNPS/src/SFnps_modern.exe   
           
           
