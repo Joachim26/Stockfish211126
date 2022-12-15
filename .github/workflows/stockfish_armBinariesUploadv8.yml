@@ -67,7 +67,7 @@ jobs:
           make clean
           make -j2 build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          mv ./stockfish.exe ./SFnps_modern.exe
+          # mv ./stockfish.exe ./SFnps_modern.exe
 
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_armv8_tests }}
@@ -79,7 +79,7 @@ jobs:
         if: ${{ matrix.config.run_win11_tests }}
         with:
           name: SFnps-modern
-          path: /home/runner/work/StockfishNPS/StockfishNPS/src/SFnps_modern.exe   
+          path: /home/runner/work/StockfishNPS/StockfishNPS/src/stockfish.exe   
           
           
           
