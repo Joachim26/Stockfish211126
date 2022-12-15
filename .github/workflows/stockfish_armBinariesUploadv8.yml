@@ -1,4 +1,4 @@
-name: SFnpsArmTest
+name: SFnpsArm8upload
 on:
   workflow_dispatch:
 jobs:
@@ -30,18 +30,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download qemu-user packages
-        run: |
-          sudo apt update
-          sudo apt install qemu-user
-
       - name: Download the used network from the fishtest framework
         run: make net
-
-      - name: Check compiler
-        run: |
-          export PATH=$PATH:$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
-          $COMPILER -v
 
       # armv8 tests
 
@@ -49,9 +39,7 @@ jobs:
         run: |
             export PATH=$ANDROID_NDK_HOME:$PATH
             export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
-            #export LDFLAGS="-static -Wno-unused-command-line-argument"
 
-            #make net
             cp nn-*.nnue ../jni
             cd ../jni
             cp Application_v8.mk Application.mk
