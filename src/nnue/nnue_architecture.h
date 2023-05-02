@@ -39,7 +39,7 @@ namespace Stockfish::Eval::NNUE {
 using FeatureSet = Features::HalfKAv2_hm;
 
 // Number of input feature dimensions after conversion
-constexpr IndexType TransformedFeatureDimensions = 1024;
+constexpr IndexType TransformedFeatureDimensions = 256;
 constexpr IndexType PSQTBuckets = 8;
 constexpr IndexType LayerStacks = 8;
 
@@ -72,20 +72,22 @@ struct Network
 
   // Read network parameters
   bool read_parameters(std::istream& stream) {
-    return   fc_0.read_parameters(stream)
-          && ac_0.read_parameters(stream)
-          && fc_1.read_parameters(stream)
-          && ac_1.read_parameters(stream)
-          && fc_2.read_parameters(stream);
+    if (!fc_0.read_parameters(stream)) return false;
+    if (!ac_0.read_parameters(stream)) return false;
+    if (!fc_1.read_parameters(stream)) return false;
+    if (!ac_1.read_parameters(stream)) return false;
+    if (!fc_2.read_parameters(stream)) return false;
+    return true;
   }
 
-  // Write network parameters
+  // Read network parameters
   bool write_parameters(std::ostream& stream) const {
-    return   fc_0.write_parameters(stream)
-          && ac_0.write_parameters(stream)
-          && fc_1.write_parameters(stream)
-          && ac_1.write_parameters(stream)
-          && fc_2.write_parameters(stream);
+    if (!fc_0.write_parameters(stream)) return false;
+    if (!ac_0.write_parameters(stream)) return false;
+    if (!fc_1.write_parameters(stream)) return false;
+    if (!ac_1.write_parameters(stream)) return false;
+    if (!fc_2.write_parameters(stream)) return false;
+    return true;
   }
 
   std::int32_t propagate(const TransformedFeatureType* transformedFeatures)
