@@ -62,7 +62,6 @@ public:
   size_t pvIdx, pvLast;
   std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
   int selDepth, nmpMinPly;
-  Color nmpColor;
   Value bestValue, optimism[COLOR_NB];
 
   Position rootPos;
@@ -86,7 +85,6 @@ struct MainThread : public Thread {
   void search() override;
   void check_time();
 
-  double complexity;
   double previousTimeReduction;
   Value bestPreviousScore;
   Value bestPreviousAverageScore;

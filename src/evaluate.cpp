@@ -1055,7 +1055,9 @@ make_v:
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
-Value Eval::evaluate(const Position& pos, int* complexity) {
+Value Eval::evaluate(const Position& pos) {
+
+  assert(!pos.checkers());
 
   Value v;
   Value psq = pos.psq_eg_stm();
@@ -1070,7 +1072,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   else
   {
       int nnueComplexity;
-      int scale = 1001 + 5 * pos.count<PAWN>() + 61 * pos.non_pawn_material() / 4096;
+      int scale = 967 + pos.non_pawn_material() / 64;
 
       Color stm = pos.side_to_move();
       Value optimism = pos.this_thread()->optimism[stm];
@@ -1078,16 +1080,12 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
       // Blend nnue complexity with (semi)classical complexity
-      nnueComplexity = (  406 * nnueComplexity
-                        + (424 + optimism) * abs(psq - nnue)
+      nnueComplexity = (  402 * nnueComplexity
+                        + (454 + optimism) * abs(psq - nnue)
                         ) / 1024;
 
-      // Return hybrid NNUE complexity to caller
-      if (complexity)
-          *complexity = nnueComplexity;
-
-      optimism = optimism * (272 + nnueComplexity) / 256;
-      v = (nnue * scale + optimism * (scale - 748)) / 1024;
+      optimism = optimism * (274 + nnueComplexity) / 256;
+      v = (nnue * scale + optimism * (scale - 791)) / 1024;
   }
 
   // Damp down the evaluation linearly when shuffling
@@ -1110,10 +1108,6 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
-
-  // When not using NNUE, return classical complexity to caller
-  if (complexity && useClassical)
-      *complexity = abs(v - psq);
 
   return v;
 }
