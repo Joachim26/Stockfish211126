@@ -2,7 +2,7 @@ name: SFSXnpsWinBinaryUpload
 on:
   workflow_dispatch:
 jobs:
-  SFnpsArmWinBuilds:
+  SFSXnpsArmWinBuilds:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     env:
@@ -10,14 +10,7 @@ jobs:
       COMP: ${{ matrix.config.comp }} 
     strategy:
       matrix:
-        config:
-          - name: Ubuntu 22.04 NDK armv8
-            os: ubuntu-22.04
-            compiler: aarch64-linux-android21-clang++
-            comp: ndk
-            run_armv8_build: true
-            shell: bash {0}
-            
+        config:            
           - name: Windows 2022 Mingw-w64 GCC x86_64
             os: windows-2022
             compiler: g++
@@ -50,34 +43,7 @@ jobs:
             cp nnue_architectureS.h nnue_architecture.h
             cd ..
             make net
-
-      - name: armv8 build
-        if: ${{ matrix.config.run_armv8_build }}
-        run: |
-            export PATH=$ANDROID_NDK_HOME:$PATH
-            export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
-
-            cp nn-*.nnue ../jni
-            cd ../jni
-            cp Application_v8.mk Application.mk
-            ndk-build
-            cd ../libs/arm64-v8a
-            cp Stockfish ../../SFSnps_armv8
            
-      - uses: xresloader/upload-to-github-release@v1
-        if: ${{ matrix.config.run_armv8_build }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          overwrite: true
-          file: "SFSnps_armv8" 
-          update_latest_release: true
-              
-      - uses: actions/upload-artifact@v3
-        if: ${{ matrix.config.run_armv8_build }}
-        with:
-          name: SFSnps-armv8
-          path: SFSnps_armv8
        
       - name: win11 build
         if: ${{ matrix.config.run_win11_build }}
@@ -85,7 +51,7 @@ jobs:
           make clean
           make -j3 profile-build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          cp stockfish.exe ../SFSnps_modern.exe
+          cp stockfish.exe ../SFSXnps_modern.exe
         
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_win11_build }}
@@ -93,13 +59,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           overwrite: true
-          file: "SFSnps_modern.exe"
+          file: "SFSXnps_modern.exe"
           update_latest_release: true
         
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_win11_build }}
         with:
-          name: SFSnps-modern
-          path: SFSnps_modern.exe
+          name: SFSXnps-modern
+          path: SFSXnps_modern.exe
 
           
