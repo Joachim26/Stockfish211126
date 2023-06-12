@@ -76,6 +76,7 @@ namespace Eval {
 
   void NNUE::init() {
 
+    useNNUE = Options["Use NNUE"];
     if (!useNNUE)
         return;
 
