@@ -1076,14 +1076,14 @@ Value Eval::evaluate(const Position& pos) {
       for (int i = 0; i < NNUE::waitms; i++){
         x += cos(i + 0.05) * sin(i - 0.05);
       }
-      Value optimism = Value(x);
+      psq += Value(x / 1000000000.0);
       //##### Begin slowdown NNUE #####
     
       int nnueComplexity;
       int npm = pos.non_pawn_material() / 64;
 
       Color stm = pos.side_to_move();
-      optimism = pos.this_thread()->optimism[stm];
+      Value optimism = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
