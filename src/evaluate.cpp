@@ -66,10 +66,6 @@ namespace Eval {
   bool useNNUE;
   string currentEvalFileName = "None";
 
-  bool pureNNUE;
-  int NNUE::RandomEvalPerturb = 0;
-  int NNUE::waitms = 0;
-
   /// NNUE::init() tries to load a NNUE network at startup time, or when the engine
   /// receives a UCI command "setoption name EvalFile value nn-[a-z0-9]{12}.nnue"
   /// The name of the NNUE network is always retrieved from the EvalFile option.
@@ -80,9 +76,6 @@ namespace Eval {
 
   void NNUE::init() {
 
-    pureNNUE = Options["Pure NNUE"];
-    useNNUE = Options["Use NNUE"];
-    if (!useNNUE && pureNNUE) pureNNUE = false;
     if (!useNNUE)
         return;
 
@@ -1065,7 +1058,7 @@ Value Eval::evaluate(const Position& pos) {
   // We use the much less accurate but faster Classical eval when the NNUE
   // option is set to false. Otherwise we use the NNUE eval unless the
   // PSQ advantage is decisive. (~4 Elo at STC, 1 Elo at LTC)
-  bool useClassical = !pureNNUE && (!useNNUE || abs(psq) > 2048);
+  bool useClassical = !useNNUE || abs(psq) > 2048;
 
   if (useClassical)
       v = Evaluation<NO_TRACE>(pos).value();
