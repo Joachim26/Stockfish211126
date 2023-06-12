@@ -1071,11 +1071,19 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();
   else
   {
+      //##### Begin slowdown NNUE #####
+      double x = 0.0;
+      for (int i = 0; i < NNUE::waitms; i++){
+        x += cos(i + 0.05) * sin(i - 0.05);
+      }
+      Value optimism = Value(x);
+      //##### Begin slowdown NNUE #####
+    
       int nnueComplexity;
       int npm = pos.non_pawn_material() / 64;
 
       Color stm = pos.side_to_move();
-      Value optimism = pos.this_thread()->optimism[stm];
+      optimism = pos.this_thread()->optimism[stm];
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
@@ -1088,7 +1096,8 @@ Value Eval::evaluate(const Position& pos) {
   v = v * (200 - pos.rule50_count()) / 214;
 
   // SFnps Begin //
-  if((NNUE::RandomEvalPerturb) || (NNUE::waitms))
+  // if((NNUE::RandomEvalPerturb) || (NNUE::waitms))
+  if (false)
   {
     // waitms millisecs
     std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::waitms));
