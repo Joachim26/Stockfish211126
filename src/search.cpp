@@ -792,7 +792,8 @@ namespace {
         &&  ss->staticEval >= beta - 19 * depth - improvement / 13 + 257
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= thisThread->nmpMinPly))
+        &&  ss->ply >= thisThread->nmpMinPly
+        &&  beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
         assert(eval - beta >= 0);
 
