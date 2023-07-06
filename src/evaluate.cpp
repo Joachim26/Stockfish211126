@@ -1085,7 +1085,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (200 - pos.rule50_count()) / 165;  //214
+  v = v * (200 - pos.rule50_count()) / 257;  //214
 
   // SFnps Begin //
   if((NNUE::RandomEvalPerturb) || (NNUE::waitms))
