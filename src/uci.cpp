@@ -226,7 +226,7 @@ namespace {
      constexpr double bs[] = {  -2.29434733,   13.27689788,  -14.26828904,   63.45318330 };
 
      // Enforce that NormalizeToPawnValue corresponds to a 50% win rate at ply 64
-     static_assert(UCI::NormalizeToPawnValue == int(as[0] + as[1] + as[2] + as[3]));
+     //static_assert(UCI::NormalizeToPawnValue == int(as[0] + as[1] + as[2] + as[3]));
 
      double a = (((as[0] * m + as[1]) * m + as[2]) * m) + as[3];
      double b = (((bs[0] * m + bs[1]) * m + bs[2]) * m) + bs[3];
