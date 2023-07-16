@@ -21,9 +21,12 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <random>
 #include <iostream>
 #include <streambuf>
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "bitboard.h"
 #include "evaluate.h"
@@ -57,6 +60,10 @@ namespace Stockfish {
 namespace Eval {
 
   string currentEvalFileName = "None";
+
+  bool pureNNUE;
+  int NNUE::RandomEvalPerturb = 0;
+  int NNUE::waitms = 0;
 
   /// NNUE::init() tries to load a NNUE network at startup time, or when the engine
   /// receives a UCI command "setoption name EvalFile value nn-[a-z0-9]{12}.nnue"
@@ -144,7 +151,7 @@ Value Eval::evaluate(const Position& pos) {
 
   Value v;
   Value psq = pos.psq_eg_stm();
-
+  
   int nnueComplexity;
   int npm = pos.non_pawn_material() / 64;
 
@@ -161,6 +168,21 @@ Value Eval::evaluate(const Position& pos) {
 
   // Damp down the evaluation linearly when shuffling
   v = v * (200 - pos.rule50_count()) / 214;
+
+  // SFnps Begin //
+  if((NNUE::RandomEvalPerturb) || (NNUE::waitms))
+  {
+    // waitms millisecs
+    std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::waitms));
+
+    // RandomEval
+    static thread_local std::mt19937_64 rng = [](){return std::mt19937_64(std::time(0));}();
+    std::normal_distribution<float> d(0.0, PawnValueEg);
+    float r = d(rng);
+    r = std::clamp<float>(r, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+    v = (NNUE::RandomEvalPerturb * Value(r) + (100 - NNUE::RandomEvalPerturb) * v) / 100;
+  }
+  // SFnps End //
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
