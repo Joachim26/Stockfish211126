@@ -154,11 +154,11 @@ public:
 
 string engine_info(bool to_uci) {
   stringstream ss;
-  ss << "Stockfish " << version << setfill('0');
+  ss << "SFMX" << setfill('0');
 
   if constexpr (version == "dev")
   {
-      ss << "-";
+      ss << "_";
       #ifdef GIT_DATE
       ss << stringify(GIT_DATE);
       #else
@@ -170,7 +170,7 @@ string engine_info(bool to_uci) {
       ss << year << setw(2) << setfill('0') << (1 + months.find(month) / 4) << setw(2) << setfill('0') << day;
       #endif
 
-      ss << "-";
+      ss << "_";
 
       #ifdef GIT_SHA
       ss << stringify(GIT_SHA);
