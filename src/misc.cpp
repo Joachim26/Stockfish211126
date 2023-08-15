@@ -158,7 +158,7 @@ string engine_info(bool to_uci) {
 
   if constexpr (version == "dev")
   {
-      ss << "_";
+      //ss << "_";
       #ifdef GIT_DATE
       ss << stringify(GIT_DATE);
       #else
@@ -169,14 +169,15 @@ string engine_info(bool to_uci) {
       date >> month >> day >> year;
       ss << year << setw(2) << setfill('0') << (1 + months.find(month) / 4) << setw(2) << setfill('0') << day;
       #endif
-
+      /*
       ss << "_";
-
+      
       #ifdef GIT_SHA
       ss << stringify(GIT_SHA);
       #else
       ss << "nogit";
       #endif
+      */
   }
 
   ss << (to_uci  ? "\nid author ": " by ")
