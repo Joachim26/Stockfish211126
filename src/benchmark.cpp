@@ -25,11 +25,9 @@
 
 #include "position.h"
 
-using namespace std;
-
 namespace {
 
-const vector<string> Defaults = {
+const std::vector<std::string> Defaults = {
   "setoption name UCI_Chess960 value false",
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 10",
@@ -109,10 +107,10 @@ namespace Stockfish {
 /// bench 64 4 5000 current movetime : search current position with 4 threads for 5 sec
 /// bench 16 1 5 blah perft          : run a perft 5 on positions in file "blah"
 
-vector<string> setup_bench(const Position& current, istream& is) {
+std::vector<std::string> setup_bench(const Position& current, std::istream& is) {
 
-  vector<string> fens, list;
-  string go, token;
+  std::vector<std::string> fens, list;
+  std::string go, token;
 
   // Assign default values to missing arguments
   std::string ttSize    = (is >> token) ? token : "16";
@@ -131,12 +129,12 @@ vector<string> setup_bench(const Position& current, istream& is) {
 
   else
   {
-      string fen;
-      ifstream file(fenFile);
+      std::string fen;
+      std::ifstream file(fenFile);
 
       if (!file.is_open())
       {
-          cerr << "Unable to open file " << fenFile << endl;
+          std::cerr << "Unable to open file " << fenFile << std::endl;
           exit(EXIT_FAILURE);
       }
 
@@ -151,8 +149,8 @@ vector<string> setup_bench(const Position& current, istream& is) {
   list.emplace_back("setoption name Hash value " + ttSize);
   list.emplace_back("ucinewgame");
 
-  for (const string& fen : fens)
-      if (fen.find("setoption") != string::npos)
+  for (const std::string& fen : fens)
+      if (fen.find("setoption") != std::string::npos)
           list.emplace_back(fen);
       else
       {
