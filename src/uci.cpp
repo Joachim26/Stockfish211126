@@ -207,18 +207,10 @@ namespace {
 
     dbg_print();
 
-    // GCC PGO fix
-/*
-    #ifdef __GNUC__
-      #ifndef __clang__
-        __gcov_dump();
-      #endif
-    #endif
-*/
-    cerr << "\n==========================="
-         << "\nTotal time (ms) : " << elapsed
-         << "\nNodes searched  : " << nodes
-         << "\nNodes/second    : " << 1000 * nodes / elapsed << endl;
+    std::cerr << "\n==========================="
+              << "\nTotal time (ms) : " << elapsed
+              << "\nNodes searched  : " << nodes
+              << "\nNodes/second    : " << 1000 * nodes / elapsed << std::endl;
   }
 
   // The win rate model returns the probability of winning (in per mille units) given an
