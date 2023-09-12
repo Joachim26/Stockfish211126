@@ -120,7 +120,7 @@ vector<string> setup_bench(const Position& current, istream& is) {
   std::string limit     = (is >> token) ? token : "13";
   std::string fenFile   = (is >> token) ? token : "default";
   std::string limitType = (is >> token) ? token : "depth";
-  
+
   go = limitType == "eval" ? "eval" : "go " + limitType + " " + limit;
 
   if (fenFile == "default")
