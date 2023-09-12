@@ -119,6 +119,7 @@ std::vector<std::string> setup_bench(const Position& current, std::istream& is) 
   std::string fenFile   = (is >> token) ? token : "default";
   std::string limitType = (is >> token) ? token : "depth";
 
+
   go = limitType == "eval" ? "eval" : "go " + limitType + " " + limit;
 
   if (fenFile == "default")

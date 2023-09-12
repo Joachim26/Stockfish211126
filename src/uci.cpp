@@ -47,8 +47,15 @@ namespace {
 
   // FEN string for the initial position in standard chess
   const char* StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-
+  
+  // GCC PGO fix, does not work for GCC
+/*
+  #ifdef __GNUC__
+    #ifndef __clang__
+      extern "C" void __gcov_dump();
+    #endif
+  #endif
+*/
   // position() is called when the engine receives the "position" UCI command.
   // It sets up the position that is described in the given FEN string ("fen") or
   // the initial position ("startpos") and then makes the moves given in the following
@@ -202,6 +209,7 @@ namespace {
               << "\nTotal time (ms) : " << elapsed
               << "\nNodes searched  : " << nodes
               << "\nNodes/second    : " << 1000 * nodes / elapsed << std::endl;
+
   }
 
   // The win rate model returns the probability of winning (in per mille units) given an
