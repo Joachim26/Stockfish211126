@@ -230,9 +230,9 @@ class FeatureTransformer {
     // Read network parameters
     bool read_parameters(std::istream& stream) {
 
-        read_leb_128<BiasType>(stream, biases, HalfDimensions);
-        read_leb_128<WeightType>(stream, weights, HalfDimensions * InputDimensions);
-        read_leb_128<PSQTWeightType>(stream, psqtWeights, PSQTBuckets * InputDimensions);
+        read_little_endian<BiasType      >(stream, biases     , HalfDimensions                  );
+        read_little_endian<WeightType    >(stream, weights    , HalfDimensions * InputDimensions);
+        read_little_endian<PSQTWeightType>(stream, psqtWeights, PSQTBuckets    * InputDimensions);
 
         return !stream.fail();
     }
@@ -240,9 +240,9 @@ class FeatureTransformer {
     // Write network parameters
     bool write_parameters(std::ostream& stream) const {
 
-        write_leb_128<BiasType>(stream, biases, HalfDimensions);
-        write_leb_128<WeightType>(stream, weights, HalfDimensions * InputDimensions);
-        write_leb_128<PSQTWeightType>(stream, psqtWeights, PSQTBuckets * InputDimensions);
+        write_little_endian<BiasType      >(stream, biases     , HalfDimensions                  );
+        write_little_endian<WeightType    >(stream, weights    , HalfDimensions * InputDimensions);
+        write_little_endian<PSQTWeightType>(stream, psqtWeights, PSQTBuckets    * InputDimensions);
 
         return !stream.fail();
     }
