@@ -85,7 +85,7 @@ jobs:
           make clean
           make -j3 profile-build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          cp stockfish.exe ../SF+nps_modern.exe
+          cp stockfish.exe ../SFMPnps_modern.exe
         
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_win11_build }}
