@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := Stockfish
 LOCAL_C_INCLUDES := 
-LOCAL_SRC_FILES := $(wildcard ../src/*.cpp ../src/nnue/*.cpp ../src/nnue/features/*.cpp ../src/syzygy/*.cpp)
+LOCAL_SRC_FILES := $(wildcard ../src/*.cpp ../src/nnue/*.cpp ../src/nnue/features/*.cpp ../src/syzygy/*.cpp ../src/book/*.cpp ../src/mcts/*.cpp)
 LOCAL_CFLAGS += -std=c++17 -O3 -flto -fexperimental-new-pass-manager -Wfatal-errors -Wall -Wextra -Wshadow -DNNUE_EMBEDDING_OFF -DUSE_PTHREADS
 LOCAL_CPPFLAGS += 
 LOCAL_CPP_FEATURES := 
