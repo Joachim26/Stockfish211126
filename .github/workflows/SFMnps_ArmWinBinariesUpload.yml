@@ -62,7 +62,7 @@ jobs:
             cp Application_v8.mk Application.mk
             ndk-build
             cd ../libs/arm64-v8a
-            cp Stockfish+ ../../SFMPnps_armv8
+            cp Stockfish ../../SFMPnps_armv8
            
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_armv8_build }}
@@ -85,7 +85,7 @@ jobs:
           make clean
           make -j3 profile-build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          cp stockfish+.exe ../SF+nps_modern.exe
+          cp stockfish.exe ../SF+nps_modern.exe
         
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_win11_build }}
