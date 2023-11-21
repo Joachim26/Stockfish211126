@@ -71,6 +71,8 @@ namespace {
 /// DD-MM-YY and show in engine_info.
 const string Version = "";
 
+bool LPMessage = false;
+
 /// Our fancy logging facility. The trick here is to replace cin.rdbuf() and
 /// cout.rdbuf() with two Tie objects that tie cin and cout to a file stream. We
 /// can toggle the logging of std::cout and std:cin at runtime whilst preserving
@@ -149,7 +151,7 @@ string engine_info(bool to_uci) {
   string month, day, year;
   stringstream ss, date(__DATE__); // From compiler, format is "Sep 21 2008"
 
-  ss << "Stockfish " << Version << setfill('0');
+  ss << "Stockfish+ " << Version << setfill('0');
 
   if (Version.empty())
   {
@@ -159,6 +161,16 @@ string engine_info(bool to_uci) {
 
   ss << (to_uci  ? "\nid author ": " by ")
      << "the Stockfish developers (see AUTHORS file)";
+
+  if (!to_uci)
+  {
+      date >> month >> day >> year;
+
+      ss << "\n"
+         << compiler_info()
+         << "\nBuild date/time  : " << year << '-' << setw(2) << setfill('0') << month << '-' << setw(2) << setfill('0') << day << ' ' << __TIME__
+         << "\n";
+  }
 
   return ss.str();
 }
@@ -180,7 +192,7 @@ std::string compiler_info() {
 /// _WIN32             Building on Windows (any)
 /// _WIN64             Building on Windows 64 bit
 
-  std::string compiler = "\nCompiled by ";
+  std::string compiler = "\nCompiled using   : ";
 
   #ifdef __clang__
      compiler += "clang++ ";
@@ -235,7 +247,7 @@ std::string compiler_info() {
      compiler += " on unknown system";
   #endif
 
-  compiler += "\nCompilation settings include: ";
+  compiler += "\nCompile settings :";
   compiler += (Is64Bit ? " 64bit" : " 32bit");
   #if defined(USE_VNNI)
     compiler += " VNNI";
@@ -267,14 +279,6 @@ std::string compiler_info() {
   #if !defined(NDEBUG)
     compiler += " DEBUG";
   #endif
-
-  compiler += "\n__VERSION__ macro expands to: ";
-  #ifdef __VERSION__
-     compiler += __VERSION__;
-  #else
-     compiler += "(undefined macro)";
-  #endif
-  compiler += "\n";
 
   return compiler;
 }
@@ -437,8 +441,22 @@ void* aligned_large_pages_alloc(size_t allocSize) {
 
   // Fall back to regular, page aligned, allocation if necessary
   if (!mem)
-      mem = VirtualAlloc(NULL, allocSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-
+        {
+        mem = VirtualAlloc(NULL, allocSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	    if (LPMessage == false)
+		    {
+		    cout << "Large Pages      : No" << endl << endl;
+		    LPMessage = true;
+            }
+        }
+  else
+        {
+	    if (LPMessage == false)
+		    {
+		    cout << "Large Pages      : Yes" << endl << endl;
+		    LPMessage = true;
+            }
+	    }
   return mem;
 }
 
@@ -458,6 +476,22 @@ void* aligned_large_pages_alloc(size_t allocSize) {
 #if defined(MADV_HUGEPAGE)
   madvise(mem, size, MADV_HUGEPAGE);
 #endif
+  if (mem)
+	{
+  	if (LPMessage == false)
+		{
+  		cout << "Huge Pages      : Yes" << endl << endl;
+  		LPMessage = true;
+		}
+	}
+  else
+	{
+	if (LPMessage == false)
+		{
+		cout << "Huge Pages      : No" << endl << endl;
+		LPMessage = true;
+		}
+	}
   return mem;
 }
 

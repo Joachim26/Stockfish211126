@@ -20,12 +20,14 @@
 
 #include "bitboard.h"
 #include "endgame.h"
+#include "book/polybook.h"
 #include "position.h"
 #include "psqt.h"
 #include "search.h"
+#ifdef _WIN32
+#endif
 #include "syzygy/tbprobe.h"
 #include "thread.h"
-#include "tt.h"
 #include "uci.h"
 
 using namespace Stockfish;
@@ -33,7 +35,6 @@ using namespace Stockfish;
 int main(int argc, char* argv[]) {
 
   std::cout << engine_info() << std::endl;
-
   CommandLine::init(argc, argv);
   UCI::init(Options);
   Tune::init();
@@ -43,6 +44,8 @@ int main(int argc, char* argv[]) {
   Bitbases::init();
   Endgames::init();
   Threads.set(size_t(Options["Threads"]));
+  polybook1.init(Options["Book1File"]);
+  polybook2.init(Options["Book2File"]);
   Search::clear(); // After threads are up
   Eval::NNUE::init();
 

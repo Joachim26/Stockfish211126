@@ -28,6 +28,7 @@
 #include "tt.h"
 #include "uci.h"
 #include "syzygy/tbprobe.h"
+#include "book/polybook.h"
 
 using std::string;
 
@@ -42,9 +43,15 @@ void on_clear_hash(const Option&) { Search::clear(); }
 void on_hash_size(const Option& o) { TT.resize(size_t(o)); }
 void on_logger(const Option& o) { start_logger(o); }
 void on_threads(const Option& o) { Threads.set(size_t(o)); }
+void on_waitms(const Option& o) { Eval::NNUE::waitms = o; }
+void on_eval_perturb(const Option& o) { Eval::NNUE::RandomEvalPerturb = o; }
 void on_tb_path(const Option& o) { Tablebases::init(o); }
 void on_use_NNUE(const Option& ) { Eval::NNUE::init(); }
 void on_eval_file(const Option& ) { Eval::NNUE::init(); }
+void on_book1_file(const Option& o) { polybook1.init(o); }
+void on_book2_file(const Option& o) { polybook2.init(o); }
+void on_best_book_move(const Option& o) { polybook1.set_best_book_move(o); }
+void on_book_depth(const Option& o) { polybook1.set_book_depth(o); }
 
 /// Our case insensitive less() function as required by UCI protocol
 bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const {
@@ -58,10 +65,15 @@ bool CaseInsensitiveLess::operator() (const string& s1, const string& s2) const 
 
 void init(OptionsMap& o) {
 
+  constexpr int MaxMctsThreads = 512;
   constexpr int MaxHashMB = Is64Bit ? 33554432 : 2048;
 
   o["Debug Log File"]        << Option("", on_logger);
   o["Threads"]               << Option(1, 1, 512, on_threads);
+  o["Wait ms"]               << Option(0, 0, 100, on_waitms);
+  o["RandomEvalPerturb"]     << Option(0, 0, 100, on_eval_perturb);
+  o["Search_Nodes"]          << Option(0, 0, 500000);
+  o["Search_Depth"]          << Option(0, 0, 20);
   o["Hash"]                  << Option(16, 1, MaxHashMB, on_hash_size);
   o["Clear Hash"]            << Option(on_clear_hash);
   o["Ponder"]                << Option(false);
@@ -81,8 +93,13 @@ void init(OptionsMap& o) {
   o["SyzygyProbeLimit"]      << Option(7, 0, 7);
   o["Use NNUE"]              << Option(true, on_use_NNUE);
   o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
+  o["MCTS"]                  << Option(false);
+  o["MCTSThreads"]           << Option(1, 1, MaxMctsThreads);
+  o["Book1File"]             << Option("<empty>", on_book1_file);
+  o["Book2File"]             << Option("<empty>", on_book2_file);
+  o["BestBookMove"]          << Option(true, on_best_book_move);
+  o["BookDepth"]             << Option(255, 1, 255, on_book_depth);
 }
-
 
 /// operator<<() is used to print all the options default values in chronological
 /// insertion order (the idx field) and in the format defined by the UCI protocol.

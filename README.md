@@ -3,6 +3,9 @@
 [![Build Status](https://github.com/official-stockfish/Stockfish/actions/workflows/stockfish.yml/badge.svg)](https://github.com/official-stockfish/Stockfish/actions)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/official-stockfish/Stockfish?branch=master&svg=true)](https://ci.appveyor.com/project/mcostalba/stockfish/branch/master)
 
+[StockfishPlusNPS](https://github.com/Joachim26/StockfishPlusNPS/tree/SF+nps) is a slightly modified Stockfish+ for human play with nps reduction, randomized evaluation, search-depth-, and search-nodes-limit. The strength of the first two modifications can be set in the uci-options from 0 to 100, while search-depth may be limited to values from 1 to 20 and search-nodes to values up to 500000. All mods can be used in any combination together with UCI_Elo and Skill Level settings, to reduce the strength of the engine when playing against humans. 
+With default settings, StockfishPlusNPS plays on the level of the current Stockfish16_dev, since the net-architecture was updated to the latest SFNNv5 and nn-ad9b42354671.nnue.
+
 [Stockfish](https://stockfishchess.org) is a free, powerful UCI chess engine
 derived from Glaurung 2.1. Stockfish is not a complete chess program and requires a
 UCI-compatible graphical user interface (GUI) (e.g. XBoard with PolyGlot, Scid,
@@ -16,6 +19,67 @@ updatable neural networks. The classical evaluation runs efficiently on almost a
 CPU architectures, while the NNUE evaluation benefits from the vector
 intrinsics available on most CPUs (sse2, avx2, neon, or similar).
 
+## Stockfish+
+
+This is Stockfish (1/20/2022)...but adds the following features:
+
+- MCTS/UCT (Monte Carlo Tree Search w/ Upper Confidence Bounds Applied to Trees)
+minimax evaluation w/ AB rollouts
+
+- polyglot (.bin) opening book support:
+load & use up to 2 .bin books simultaneously
+
+- extended compile info:
+indicates on boot which CPU extension instruction sets are supported in each binary
+
+- large page memory notification:
+messages are displayed if Large Page (Huge Page in Linux) memory allocation was successful or not
+
+- UCI option MCTS checkbox:
+Turn montecalo search 'on' and 'off'
+
+- UCI option MCTSThreads:
+The number of threads used for MCTS search, not including main thread.
+
+Included:
+
+- MSVS 2019 project files
+
+- fast PGO optimized 64-bit binaries (see src folder)
+
+Compile it yourself for Windows with minGW using one of the included shell scripts:
+- makesf_bmi2_mingw.sh, makesf_avx2_mingw.sh, makesf_sse41-popcnt_mingw.sh, & makesf_all_mingw.sh, or simply use one of the included Windows binaries.
+
+Compile it for Linux with gcc:
+- Use makesf_bmi2_linux.sh, makesf_avx2_linux.sh, makesf_sse41-popcnt_linux.sh, or makesf_all_linux.sh.
+
+- Android compiles available here (courtesy Archimedes!):
+https://outskirts.altervista.org/forum/viewtopic.php?p=41753
+
+Boot:
+![alt tag](https://raw.githubusercontent.com/FireFather/stockfish-plus/master/docs/command_prompt.png)
+Analysis Mode:
+![alt tag](https://raw.githubusercontent.com/FireFather/stockfish-plus/master/docs/stockfish_plus.png)
+
+The MCTS implementation is adapted from
+- https://github.com/snicolet/Stockfish/commits/montecarlo
+- https://github.com/Kellykinyama12/Montecarlo
+- https://github.com/amchess/BrainLearn
+- https://github.com/amchess/ShashChess
+
+For more info on MCTS:
+- http://mcts.ai/pubs/mcts-survey-master.pdf
+- http://mcts.ai/pubs/mcts-survey-master.pdf
+- https://www.ke.tu-darmstadt.de/lehre/arbeiten/bachelor/2012/Arenz_Oleg.pdf
+- https://dke.maastrichtuniversity.nl/m.winands/publications.html
+- https://www.ru.is/faculty/yngvi/pdf/WinandsB11a.pdf
+- http://cassio.free.fr/pdf/alphago-zero-nature.pdf
+- https://arxiv.org/abs/1712.01815
+	
+The sysinfo routines are adapted from 
+- https://github.com/MoonstoneLight/SugaR-NN
+- https://github.com/amchess/BrainLearn
+- https://github.com/amchess/ShashChess
 
 ## Files
 

@@ -346,7 +346,7 @@ endif
 ### ==========================================================================
 
 ### 3.1 Selecting compiler (default = gcc)
-CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 -DNNUE_EMBEDDING_OFF $(EXTRACXXFLAGS)
+CXXFLAGS += -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS)
 DEPENDFLAGS += -std=c++17
 LDFLAGS += $(EXTRALDFLAGS)
 
@@ -361,8 +361,8 @@ ifeq ($(COMP),gcc)
 
 	ifeq ($(arch),$(filter $(arch),armv7 armv8))
 		ifeq ($(OS),Android)
-			CXXFLAGS += -frtti -Wno-missing-profile
-			LDFLAGS += 
+			CXXFLAGS += -m$(bits)
+			LDFLAGS += -m$(bits)
 		endif
 	else
 		CXXFLAGS += -m$(bits)
@@ -427,7 +427,7 @@ ifeq ($(COMP),clang)
 	ifeq ($(arch),$(filter $(arch),armv7 armv8))
 		ifeq ($(OS),Android)
 			CXXFLAGS += -m$(bits)
-			LDFLAGS += -m$(bits) -static-libstdc++
+			LDFLAGS += -m$(bits)
 		endif
 	else
 		CXXFLAGS += -m$(bits)
@@ -488,7 +488,7 @@ ifdef COMPCXX
 endif
 
 ### Sometimes gcc is really clang
-ifeq ($(COMP),)
+ifeq ($(COMP),gcc)
 	gccversion = $(shell $(CXX) --version)
 	gccisclang = $(findstring clang,$(gccversion))
 	ifneq ($(gccisclang),)
@@ -531,7 +531,7 @@ ifeq ($(optimize),yes)
 
 	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
-			CXXFLAGS += -fno-gcse -march=native
+			CXXFLAGS += -fno-gcse -mthumb -march=armv7-a -mfloat-abi=softfp
 		endif
 	endif
 

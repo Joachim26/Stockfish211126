@@ -23,8 +23,10 @@
 #include <iostream>
 #include <sstream>
 
+#include "book/polybook.h"
 #include "evaluate.h"
 #include "misc.h"
+#include "mcts/montecarlo.h"
 #include "movegen.h"
 #include "movepick.h"
 #include "position.h"
@@ -71,7 +73,10 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1358 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 904);
+    if (rootDelta != 0)
+		return (r + 1358 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 904);
+    else  // avoid divide by zero error
+        return (r + 1358 - int(delta) * 1024) / 1024 + (!i && r > 904);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -132,7 +137,7 @@ namespace {
   };
 
   template <NodeType nodeType>
-  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode);
+  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode, bool mcts);//mcts
 
   template <NodeType nodeType>
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth = 0);
@@ -193,6 +198,7 @@ void Search::clear() {
 
   Time.availableNodes = 0;
   TT.clear();
+  MCTS.clear();//mcts
   Threads.clear();
   Tablebases::init(Options["SyzygyPath"]); // Free mapped files
 }
@@ -216,6 +222,16 @@ void MainThread::search() {
 
   Eval::NNUE::verify();
 
+//SFnps Begin
+
+  if (Options["Search_Nodes"])
+      Limits.nodes = int(Options["Search_Nodes"]);
+
+  if (Options["Search_Depth"])
+      Limits.depth = int(Options["Search_Depth"]);
+
+//SFnps End
+
   if (rootMoves.empty())
   {
       rootMoves.emplace_back(MOVE_NONE);
@@ -225,8 +241,33 @@ void MainThread::search() {
   }
   else
   {
-      Threads.start_searching(); // start non-main threads
-      Thread::search();          // main thread start searching
+      Move bookMove = MOVE_NONE;
+      if (!Limits.infinite && !Limits.mate)
+      {
+          bookMove = polybook1.probe(rootPos);
+          if (!bookMove)
+              bookMove = polybook2.probe(rootPos);
+
+          if (!bookMove)
+          {
+          }
+      }
+
+      if (bookMove && std::count(rootMoves.begin(), rootMoves.end(), bookMove))
+      {
+          for (Thread* th : Threads)
+              std::swap(th->rootMoves[0], *std::find(th->rootMoves.begin(), th->rootMoves.end(), bookMove));
+      }
+      else
+      {
+          bookMove = MOVE_NONE;
+      }
+
+      if (!bookMove)
+      {
+          Threads.start_searching(); // start non-main threads
+          Thread::search();          // main thread start searching
+      }
   }
 
   // When we reach the maximum depth, we can arrive here without a raise of
@@ -296,6 +337,7 @@ void Thread::search() {
   int iterIdx = 0;
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
+
   for (int i = 7; i > 0; i--)
       (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
@@ -339,6 +381,33 @@ void Thread::search() {
   optimism[~us]      = -optimism[us];
 
   int searchAgainCounter = 0;
+
+  //mcts begin
+  const bool maybeDraw = rootPos.rule50_count() >= 90 || rootPos.has_game_cycle(2);
+  const int mctsThreads = static_cast<int>(Options["MCTSThreads"]);
+
+  if (static_cast<bool>(Options["MCTS"])
+      && (((mctsThreads==1 && idx == 1)
+      || (mctsThreads > 1
+      && idx <= static_cast<size_t>(mctsThreads)
+      && !mainThread))
+      && !maybeDraw))
+	  {
+		  const auto monteCarlo = new MonteCarlo(rootPos);
+	      if (!monteCarlo)
+	      {
+	          std::cerr << IO_LOCK << "Could not allocate " << sizeof(MonteCarlo) << " bytes for MonteCarlo search" << std::endl << IO_UNLOCK;
+	          ::exit(EXIT_FAILURE);
+	      }
+
+	      monteCarlo->search();
+	      if (idx == 1 && Limits.infinite)
+	        monteCarlo->print_children();
+
+	      delete monteCarlo;
+	  }
+  else
+  // mcts end
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -399,7 +468,7 @@ void Thread::search() {
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
-              bestValue = Stockfish::search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
+              bestValue = Stockfish::search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false, false);//mcts
 
               // Bring the best move to the front. It is critical that sorting
               // is done with a stable algorithm because all the values but the
@@ -546,7 +615,7 @@ namespace {
   // search<>() is the main search function for both PV and non-PV nodes
 
   template <NodeType nodeType>
-  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
+  Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode, bool mcts) { //mcts
 
     Thread* thisThread = pos.this_thread();
 
@@ -841,7 +910,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode, mcts);//mcts
 
         pos.undo_null_move();
 
@@ -861,7 +930,7 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / 4;
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false, mcts);//mcts
 
             thisThread->nmpMinPly = 0;
 
@@ -914,7 +983,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode, mcts);//mcts
 
                 pos.undo_move(move);
 
@@ -1096,7 +1165,7 @@ moves_loop: // When in check, search starts here
           Depth singularDepth = (depth - 1) / 2;
 
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode, mcts);//mcts
           ss->excludedMove = MOVE_NONE;
 
           if (value < singularBeta)
@@ -1210,7 +1279,7 @@ moves_loop: // When in check, search starts here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true, mcts);//mcts
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1226,7 +1295,7 @@ moves_loop: // When in check, search starts here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode, mcts);//mcts
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1247,7 +1316,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
+                              std::min(maxNextDepth, newDepth), false, mcts);//mcts
       }
 
       // Step 18. Undo move
@@ -1796,6 +1865,98 @@ moves_loop: // When in check, search starts here
 
 } // namespace
 
+//mcts begin
+// minimax_value() is a wrapper around the search() and qsearch() functions
+// used to compute the minimax evaluation of a position at the given depth,
+// from the point of view of the side to move. It does not compute PV nor
+// emit anything on the output stream. Note: you can call this function
+// with depth == DEPTH_ZERO to compute the quiescence value of the position.
+
+Value minimax_value(Position& pos, Search::Stack* ss, Depth depth) {
+
+	// Threads.stopOnPonderhit = Threads.stop = false;
+	Value alpha = -VALUE_INFINITE;
+	Value beta = VALUE_INFINITE;
+	Move pv[MAX_PLY + 1];
+	ss->pv = pv;
+
+    /* if (pos.should_debug())
+    {
+        debug << "Entering minimax_value() for the following position:" << std::endl;
+        debug << pos << std::endl;
+        hit_any_key();
+    }
+    */
+
+	Value value = search<PV>(pos, ss, alpha, beta, depth, false, true);
+
+	/* if (pos.should_debug())
+    {
+        debug << pos << std::endl;
+        debug << "... exiting minimax_value() with value = " << value << std::endl;
+        hit_any_key();
+    }
+	*/
+	return value;
+}
+
+// minimax_value() is a wrapper around the search() and qsearch() functions
+// used to compute the minimax evaluation of a position at the given depth,
+// from the point of view of the side to move. It does not compute PV nor
+// emit anything on the output stream. Note: you can call this function
+// with depth == DEPTH_ZERO to compute the quiescence value of the position.
+
+Value minimax_value(Position& pos, Search::Stack* ss, Depth depth, Value alpha, Value beta) {
+
+	// Threads.stopOnPonderhit = Threads.stop = false;
+	// alpha = -VALUE_INFINITE;
+	// beta = VALUE_INFINITE;
+
+	Move pv[MAX_PLY + 1];
+	ss->pv = pv;
+
+	/* if (pos.should_debug())
+    {
+        debug << "Entering minimax_value() for the following position:" << std::endl;
+        debug << pos << std::endl;
+        hit_any_key();
+    }
+    */
+
+	Value value = VALUE_ZERO;
+	Value delta = Value(18);
+
+	while (!Threads.stop.load(std::memory_order_relaxed))
+	{
+		value = search<PV>(pos, ss, alpha, beta, depth, false, false);
+		if (value <= alpha)
+		{
+			beta = (alpha + beta) / 2;
+			alpha = std::max(value - delta, -VALUE_INFINITE);
+
+		}
+		else if (value >= beta)
+		{
+			beta = std::min(value + delta, VALUE_INFINITE);
+			//++failedHighCnt;
+		}
+		else
+		{
+			//++rootMoves[pvIdx].bestMoveCount;
+			break;
+		}
+	}
+
+    /*if (pos.should_debug())
+    {
+        debug << pos << std::endl;
+        debug << "... exiting minimax_value() with value = " << value << std::endl;
+        hit_any_key();
+    }
+	*/
+	return value;
+}
+//mcts end
 
 /// MainThread::check_time() is used to print debug info and, more importantly,
 /// to detect when we are out of available time and thus stop the search.

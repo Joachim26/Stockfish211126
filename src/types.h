@@ -44,9 +44,14 @@
 
 #if defined(_MSC_VER)
 // Disable some silly and noisy warning from MSVC compiler
+#pragma warning(disable: 4068) // unknown pragma 'GCC'
 #pragma warning(disable: 4127) // Conditional expression is constant
 #pragma warning(disable: 4146) // Unary minus operator applied to unsigned type
+#pragma warning(disable: 4244) // 'argument': conversion from 'double' to 'int', possible loss of data
+#pragma warning(disable: 4267) // 'argument': conversion from 'double' to 'int', possible loss of data
 #pragma warning(disable: 4800) // Forcing value to bool 'true' or 'false'
+#else
+#pragma GCC diagnostic ignored "-Wmisleading-indentation"
 #endif
 
 /// Predefined macros hell:
@@ -468,6 +473,10 @@ constexpr PieceType promotion_type(Move m) {
 
 constexpr Move make_move(Square from, Square to) {
   return Move((from << 6) + to);
+}
+
+constexpr Move reverse_move(Move m) {
+  return make_move(to_sq(m), from_sq(m));
 }
 
 template<MoveType T>
