@@ -62,7 +62,7 @@ jobs:
             cp Application_v8.mk Application.mk
             ndk-build
             cd ../libs/arm64-v8a
-            cp Stockfish ../../SFMnps_armv8
+            cp Stockfish+ ../../SFMPnps_armv8
            
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_armv8_build }}
@@ -70,14 +70,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           overwrite: true
-          file: "SFMnps_armv8" 
+          file: "SFMPnps_armv8" 
           update_latest_release: true
               
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_armv8_build }}
         with:
-          name: SFMnps-armv8
-          path: SFMnps_armv8
+          name: SFMPnps-armv8
+          path: SFMPnps_armv8
        
       - name: win11 build
         if: ${{ matrix.config.run_win11_build }}
@@ -85,7 +85,7 @@ jobs:
           make clean
           make -j3 profile-build ARCH=x86-64-modern COMP=$COMP
           make strip ARCH=x86-64-modern COMP=$COMP
-          cp stockfish.exe ../SFMnps_modern.exe
+          cp stockfish+.exe ../SF+nps_modern.exe
         
       - uses: xresloader/upload-to-github-release@v1
         if: ${{ matrix.config.run_win11_build }}
@@ -93,13 +93,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           overwrite: true
-          file: "SFMnps_modern.exe"
+          file: "SFMPnps_modern.exe"
           update_latest_release: true
         
       - uses: actions/upload-artifact@v3
         if: ${{ matrix.config.run_win11_build }}
         with:
-          name: SFMnps-modern
-          path: SFMnps_modern.exe
+          name: SFMPnps-modern
+          path: SFMPnps_modern.exe
 
           
