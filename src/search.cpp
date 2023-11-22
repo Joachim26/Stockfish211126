@@ -77,7 +77,7 @@ namespace {
     if (rootDelta != 0)
         return (r + 1627 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 992);
     else  // SFplus: avoid divide by zero error
-        return (r + 1627 - int(delta) * 1024) / 1024 + (!i && r > 992);
+        return (r + 1627 - int(delta) * 1024) / 512 + (!i && r > 992); // 512 for rootDelta == 0.5 
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
