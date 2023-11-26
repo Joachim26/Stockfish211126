@@ -364,7 +364,7 @@ ifeq ($(COMP),gcc)
 	ifeq ($(arch),$(filter $(arch),armv7 armv8))
 		ifeq ($(OS),Android)
 			CXXFLAGS += -frtti -Wno-missing-profile
-			LDFLAGS += 
+			LDFLAGS += -static-libstdc++
 		endif
 	else
 		CXXFLAGS += -m$(bits)
