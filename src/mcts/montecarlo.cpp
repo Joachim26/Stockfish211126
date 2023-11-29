@@ -618,7 +618,7 @@ namespace Stockfish {
 		stack[ply].ply = ply;
 		stack[ply].currentMove = m;
 		stack[ply].inCheck = pos.checkers();
-		const bool captureOrPromotion = pos.capture_or_promotion(m);
+		const bool captureOrPromotion = pos.capture(m);
 
 		stack[ply].continuationHistory = &pos.this_thread()->continuationHistory[stack[ply].inCheck]
 			[captureOrPromotion]
