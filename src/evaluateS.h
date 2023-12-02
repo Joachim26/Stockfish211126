@@ -26,34 +26,33 @@
 namespace Stockfish {
 
 class Position;
-enum Value : int;
 
 namespace Eval {
 
-  std::string trace(Position& pos);
-  Value simple_eval(const Position& pos, Color c);
-  Value evaluate(const Position& pos);
+std::string trace(Position& pos);
 
-  extern bool useNNUE;
-  extern std::string currentEvalFileName;
+Value simple_eval(const Position& pos, Color c);
+Value evaluate(const Position& pos);
 
-  // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
-  // for the build process (profile-build and fishtest) to work. Do not change the
-  // name of the macro, as it is used in the Makefile.
-  #define EvalFileDefaultName   "nn-8366015ec235.nnue"
+extern std::string currentEvalFileName;
 
-  namespace NNUE {
+// The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
+// for the build process (profile-build and fishtest) to work. Do not change the
+// name of the macro, as it is used in the Makefile.
+#define EvalFileDefaultName   "nn-8366015ec235.nnue"
 
-    extern int RandomEvalPerturb;
-    extern int waitms;
+namespace NNUE {
+
+extern int RandomEvalPerturb;
+extern int waitms;
     
-    void init();
-    void verify();
+void init();
+void verify();
 
-  } // namespace NNUE
+}  // namespace NNUE
 
-} // namespace Eval
+}  // namespace Eval
 
-} // namespace Stockfish
+}  // namespace Stockfish
 
-#endif // #ifndef EVALUATE_H_INCLUDED
+#endif  // #ifndef EVALUATE_H_INCLUDED
