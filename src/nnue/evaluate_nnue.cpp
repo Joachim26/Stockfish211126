@@ -44,7 +44,7 @@ LargePagePtr<FeatureTransformer<TransformedFeatureDimensionsBig>>   featureTrans
 LargePagePtr<FeatureTransformer<TransformedFeatureDimensionsSmall>> featureTransformerSmall;
 
 // Evaluation function
-AlignedPtr<Network<TransformedFeatureDimensionsBig,   L2Big,   L3Big>>   networkBig[LayerStacks];
+AlignedPtr<Network<TransformedFeatureDimensionsBig, L2Big, L3Big>>       networkBig[LayerStacks];
 AlignedPtr<Network<TransformedFeatureDimensionsSmall, L2Small, L3Small>> networkSmall[LayerStacks];
 
 // Evaluation function file names
@@ -142,13 +142,13 @@ static bool read_parameters(std::istream& stream, bool small) {
         return false;
     if (!small && !Detail::read_parameters(stream, *featureTransformerBig))
         return false;
-    if ( small && !Detail::read_parameters(stream, *featureTransformerSmall))
+    if (small && !Detail::read_parameters(stream, *featureTransformerSmall))
         return false;
     for (std::size_t i = 0; i < LayerStacks; ++i)
     {
         if (!small && !Detail::read_parameters(stream, *(networkBig[i])))
             return false;
-        if ( small && !Detail::read_parameters(stream, *(networkSmall[i])))
+        if (small && !Detail::read_parameters(stream, *(networkSmall[i])))
             return false;
     }
     return stream && stream.peek() == std::ios::traits_type::eof();
@@ -176,10 +176,10 @@ static bool write_parameters(std::ostream& stream, bool small) {
 void hint_common_parent_position(const Position& pos) {
 
     int simpleEval = pos.simple_eval();
-    if (abs(simpleEval) < 2500)
-        featureTransformerBig->hint_common_access(pos);
-    else
+    if (abs(simpleEval) > 1100)
         featureTransformerSmall->hint_common_access(pos);
+    else
+        featureTransformerBig->hint_common_access(pos);
 }
 
 // Evaluation function. Perform differential calculation.
@@ -193,23 +193,25 @@ Value evaluate(const Position& pos, bool adjusted, int* complexity) {
     constexpr int      delta     = 24;
 
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
-    TransformedFeatureType
-      transformedFeaturesUnaligned[
-            FeatureTransformer<Small ? TransformedFeatureDimensionsSmall : TransformedFeatureDimensionsBig>::BufferSize
-          + alignment / sizeof(TransformedFeatureType)];
+    TransformedFeatureType transformedFeaturesUnaligned
+      [FeatureTransformer < Small ? TransformedFeatureDimensionsSmall
+                                  : TransformedFeatureDimensionsBig
+                                      > ::BufferSize + alignment / sizeof(TransformedFeatureType)];
 
     auto* transformedFeatures = align_ptr_up<alignment>(&transformedFeaturesUnaligned[0]);
 #else
-        
-    alignas(alignment) TransformedFeatureType transformedFeatures[
-        FeatureTransformer<Small ? TransformedFeatureDimensionsSmall : TransformedFeatureDimensionsBig>::BufferSize];
+
+    alignas(alignment) TransformedFeatureType
+      transformedFeatures[FeatureTransformer < Small
+                            ? TransformedFeatureDimensionsSmall
+                            : TransformedFeatureDimensionsBig > ::BufferSize];
 #endif
 
     ASSERT_ALIGNED(transformedFeatures, alignment);
 
-    const int  bucket     = (pos.count<ALL_PIECES>() - 1) / 4;
-    const auto psqt       = Small ? featureTransformerSmall->transform(pos, transformedFeatures, bucket)
-                                  : featureTransformerBig->transform(pos, transformedFeatures, bucket);
+    const int  bucket = (pos.count<ALL_PIECES>() - 1) / 4;
+    const auto psqt   = Small ? featureTransformerSmall->transform(pos, transformedFeatures, bucket)
+                              : featureTransformerBig->transform(pos, transformedFeatures, bucket);
     const auto positional = Small ? networkSmall[bucket]->propagate(transformedFeatures)
                                   : networkBig[bucket]->propagate(transformedFeatures);
 
@@ -248,7 +250,8 @@ static NnueEvalTrace trace_evaluate(const Position& pos) {
 
     auto* transformedFeatures = align_ptr_up<alignment>(&transformedFeaturesUnaligned[0]);
 #else
-    alignas(alignment) TransformedFeatureType transformedFeatures[FeatureTransformer<TransformedFeatureDimensionsBig>::BufferSize];
+    alignas(alignment) TransformedFeatureType
+      transformedFeatures[FeatureTransformer<TransformedFeatureDimensionsBig>::BufferSize];
 #endif
 
     ASSERT_ALIGNED(transformedFeatures, alignment);
@@ -442,7 +445,8 @@ bool save_eval(const std::optional<std::string>& filename, bool small) {
         actualFilename = filename.value();
     else
     {
-        if (currentEvalFileName[small] != (small ? EvalFileDefaultNameSmall : EvalFileDefaultNameBig))
+        if (currentEvalFileName[small]
+            != (small ? EvalFileDefaultNameSmall : EvalFileDefaultNameBig))
         {
             msg = "Failed to export a net. "
                   "A non-embedded net can only be saved if the filename is specified";

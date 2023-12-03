@@ -253,7 +253,7 @@ class FeatureTransformer {
     // Cast a pointer to a 2 dimensional array of width D
     template<int D, typename T>
     static constexpr T (*cast_2D(T* pt))[D] {
-        return (T(*)[D])pt;
+        return (T(*)[D]) pt;
     }
 
     // Convert input features
@@ -261,7 +261,7 @@ class FeatureTransformer {
         update_accumulator<WHITE>(pos);
         update_accumulator<BLACK>(pos);
 
-        const Color perspectives[2]  = {pos.side_to_move(), ~pos.side_to_move()};
+        const Color perspectives[2] = {pos.side_to_move(), ~pos.side_to_move()};
         const auto& accumulation =
           cast_2D<TransformedFeatureDimensions>(pos.state()->template accumulation<Small>());
         const auto& psqtAccumulation =
@@ -439,8 +439,8 @@ class FeatureTransformer {
                                            vec_add_16(columnR0[k], columnR1[k]));
             }
 
-            auto accPsqtIn = reinterpret_cast<const psqt_vec_t*>(&cast_2D<PSQTBuckets>(
-              st->template psqt_accumulation<Small>())[Perspective][0]);
+            auto accPsqtIn = reinterpret_cast<const psqt_vec_t*>(
+              &cast_2D<PSQTBuckets>(st->template psqt_accumulation<Small>())[Perspective][0]);
             auto accPsqtOut = reinterpret_cast<psqt_vec_t*>(&cast_2D<PSQTBuckets>(
               states_to_update[0]->template psqt_accumulation<Small>())[Perspective][0]);
 
@@ -473,8 +473,9 @@ class FeatureTransformer {
             for (IndexType j = 0; j < HalfDimensions / TileHeight; ++j)
             {
                 // Load accumulator
-                auto accTileIn = reinterpret_cast<const vec_t*>(&cast_2D<TransformedFeatureDimensions>(
-                  st->template accumulation<Small>())[Perspective][j * TileHeight]);
+                auto accTileIn =
+                  reinterpret_cast<const vec_t*>(&cast_2D<TransformedFeatureDimensions>(
+                    st->template accumulation<Small>())[Perspective][j * TileHeight]);
                 for (IndexType k = 0; k < NumRegs; ++k)
                     acc[k] = vec_load(&accTileIn[k]);
 
@@ -499,8 +500,10 @@ class FeatureTransformer {
                     }
 
                     // Store accumulator
-                    auto accTileOut = reinterpret_cast<vec_t*>(&cast_2D<TransformedFeatureDimensions>(
-                      states_to_update[i]->template accumulation<Small>())[Perspective][j * TileHeight]);
+                    auto accTileOut =
+                      reinterpret_cast<vec_t*>(&cast_2D<TransformedFeatureDimensions>(
+                        states_to_update[i]
+                          ->template accumulation<Small>())[Perspective][j * TileHeight]);
                     for (IndexType k = 0; k < NumRegs; ++k)
                         vec_store(&accTileOut[k], acc[k]);
                 }
@@ -536,7 +539,8 @@ class FeatureTransformer {
 
                     // Store accumulator
                     auto accTilePsqtOut = reinterpret_cast<psqt_vec_t*>(&cast_2D<PSQTBuckets>(
-                      states_to_update[i]->template psqt_accumulation<Small>())[Perspective][j * PsqtTileHeight]);
+                      states_to_update[i]
+                        ->template psqt_accumulation<Small>())[Perspective][j * PsqtTileHeight]);
                     for (std::size_t k = 0; k < NumPsqtRegs; ++k)
                         vec_store_psqt(&accTilePsqtOut[k], psqt[k]);
                 }
@@ -545,12 +549,15 @@ class FeatureTransformer {
 #else
         for (IndexType i = 0; states_to_update[i]; ++i)
         {
-            std::memcpy(cast_2D<TransformedFeatureDimensions>(states_to_update[i]->template accumulation<Small>())[Perspective],
-                        cast_2D<TransformedFeatureDimensions>(st->template accumulation<Small>())[Perspective],
+            std::memcpy(cast_2D<TransformedFeatureDimensions>(
+                          states_to_update[i]->template accumulation<Small>())[Perspective],
+                        cast_2D<TransformedFeatureDimensions>(
+                          st->template accumulation<Small>())[Perspective],
                         HalfDimensions * sizeof(BiasType));
 
             for (std::size_t k = 0; k < PSQTBuckets; ++k)
-                cast_2D<PSQTBuckets>(states_to_update[i]->template psqt_accumulation<Small>())[Perspective][k] =
+                cast_2D<PSQTBuckets>(
+                  states_to_update[i]->template psqt_accumulation<Small>())[Perspective][k] =
                   cast_2D<PSQTBuckets>(st->template psqt_accumulation<Small>())[Perspective][k];
 
             st = states_to_update[i];
@@ -598,7 +605,7 @@ class FeatureTransformer {
         // Refresh the accumulator
         // Could be extracted to a separate function because it's done in 2 places,
         // but it's unclear if compilers would correctly handle register allocation.
-        StateInfo* st = pos.state();
+        StateInfo* st                               = pos.state();
         st->template computed<Small>()[Perspective] = true;
         FeatureSet::IndexList active;
         FeatureSet::append_active_indices<Perspective>(pos, active);
@@ -646,9 +653,9 @@ class FeatureTransformer {
         }
 
 #else
-        std::memcpy(cast_2D<TransformedFeatureDimensions>(st->template accumulation<Small>())[Perspective],
-                    biases,
-                    HalfDimensions * sizeof(BiasType));
+        std::memcpy(
+          cast_2D<TransformedFeatureDimensions>(st->template accumulation<Small>())[Perspective],
+          biases, HalfDimensions * sizeof(BiasType));
 
         for (std::size_t k = 0; k < PSQTBuckets; ++k)
             cast_2D<PSQTBuckets>(st->template psqt_accumulation<Small>())[Perspective][k] = 0;

@@ -22,6 +22,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -46,7 +47,7 @@
 //     const unsigned int         gEmbeddedNNUESize;    // the size of the embedded file
 // Note that this does not work in Microsoft Visual Studio.
 #if !defined(_MSC_VER) && !defined(NNUE_EMBEDDING_OFF)
-INCBIN(EmbeddedNNUEBig,   EvalFileDefaultNameBig);
+INCBIN(EmbeddedNNUEBig, EvalFileDefaultNameBig);
 INCBIN(EmbeddedNNUESmall, EvalFileDefaultNameSmall);
 #else
 const unsigned char        gEmbeddedNNUEBigData[1]   = {0x0};
@@ -62,9 +63,9 @@ namespace Stockfish {
 
 namespace Eval {
 
-std::string currentEvalFileName[2] = {"None", "None"};
-const std::string EvFiles[2]       = {"EvalFileBig", "EvalFileSmall"};
-const std::string EvFileNames[2]   = {EvalFileDefaultNameBig, EvalFileDefaultNameSmall};
+std::string       currentEvalFileName[2] = {"None", "None"};
+const std::string EvFiles[2]             = {"EvalFile", "EvalFileSmall"};
+const std::string EvFileNames[2]         = {EvalFileDefaultNameBig, EvalFileDefaultNameSmall};
 
 int NNUE::RandomEvalPerturb = 0;
 int NNUE::waitms = 0;
@@ -85,10 +86,10 @@ void NNUE::init() {
             eval_file = EvFileNames[small];
 
 #if defined(DEFAULT_NNUE_DIRECTORY)
-    std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory,
-                                     stringify(DEFAULT_NNUE_DIRECTORY)};
+        std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory,
+                                         stringify(DEFAULT_NNUE_DIRECTORY)};
 #else
-    std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory};
+        std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory};
 #endif
 
         for (const std::string& directory : dirs)
@@ -173,25 +174,19 @@ Value Eval::evaluate(const Position& pos) {
     Value v;
     Color stm        = pos.side_to_move();
     int   shuffling  = pos.rule50_count();
-    int   simpleEval = pos.simple_eval() + (int(pos.key() & 7) - 3);
+    int   simpleEval = pos.simple_eval();
 
-    int lazyThreshold = RookValue + KnightValue + 16 * shuffling * shuffling
-                                  + abs(pos.this_thread()->bestValue)
-                                  + abs(pos.this_thread()->rootSimpleEval);
+    int lazyThresholdSimpleEval = 2300;
+    int lazyThresholdSmallNet   = 1100;
 
-    bool lazy = abs(simpleEval) > lazyThreshold * 105 / 100;
-
+    bool lazy = abs(simpleEval) > lazyThresholdSimpleEval;
     if (lazy)
         v = Value(simpleEval);
     else
     {
-        int accBias = pos.state()->accumulatorBig.computed[0]
-                    + pos.state()->accumulatorBig.computed[1]
-                    - pos.state()->accumulatorSmall.computed[0]
-                    - pos.state()->accumulatorSmall.computed[1];
+        bool smallNet = abs(simpleEval) > lazyThresholdSmallNet;
 
-        int  nnueComplexity;
-        bool smallNet = abs(simpleEval) > lazyThreshold * (90 + accBias) / 100;
+        int nnueComplexity;
 
         Value nnue = smallNet ? NNUE::evaluate<true>(pos, true, &nnueComplexity)
                               : NNUE::evaluate<false>(pos, true, &nnueComplexity);

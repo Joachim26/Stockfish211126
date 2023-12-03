@@ -20,6 +20,7 @@
 #define POSITION_H_INCLUDED
 
 #include <cassert>
+#include <cstdint>
 #include <deque>
 #include <iosfwd>
 #include <memory>
@@ -61,17 +62,19 @@ struct StateInfo {
     Eval::NNUE::Accumulator<true>  accumulatorSmall;
     DirtyPiece                     dirtyPiece;
 
-    template<bool Small> constexpr std::int16_t* accumulation() {
-        return Small ? (std::int16_t*)accumulatorSmall.accumulation
-                     : (std::int16_t*)accumulatorBig.accumulation;
+    template<bool Small>
+    constexpr std::int16_t* accumulation() {
+        return Small ? (std::int16_t*) accumulatorSmall.accumulation
+                     : (std::int16_t*) accumulatorBig.accumulation;
     }
-    template<bool Small> constexpr std::int32_t* psqt_accumulation() {
-        return Small ? (std::int32_t*)accumulatorSmall.psqtAccumulation
-                     : (std::int32_t*)accumulatorBig.psqtAccumulation;
+    template<bool Small>
+    constexpr std::int32_t* psqt_accumulation() {
+        return Small ? (std::int32_t*) accumulatorSmall.psqtAccumulation
+                     : (std::int32_t*) accumulatorBig.psqtAccumulation;
     }
-    template<bool Small> constexpr bool* computed() {
-        return Small ? accumulatorSmall.computed
-                     : accumulatorBig.computed;
+    template<bool Small>
+    constexpr bool* computed() {
+        return Small ? accumulatorSmall.computed : accumulatorBig.computed;
     }
 };
 
@@ -321,8 +324,8 @@ inline Value Position::non_pawn_material() const {
 }
 
 inline Value Position::simple_eval() const {
-    return  PawnValue * (count<PAWN>(sideToMove) - count<PAWN>(~sideToMove))
-          + (non_pawn_material(sideToMove) - non_pawn_material(~sideToMove));
+    return PawnValue * (count<PAWN>(sideToMove) - count<PAWN>(~sideToMove))
+         + (non_pawn_material(sideToMove) - non_pawn_material(~sideToMove));
 }
 
 inline int Position::game_ply() const { return gamePly; }
