@@ -81,7 +81,7 @@ void NNUE::init() {
 
     for (bool small : {false, true})
     {
-        std::string eval_file = std::string(Options[EvFiles[small]]);
+        std::string eval_file = std::string(small ? EvalFileDefaultNameSmall : Options[EvFiles[small]]);
         if (eval_file.empty())
             eval_file = EvFileNames[small];
 
@@ -135,7 +135,7 @@ void NNUE::verify() {
 
     for (bool small : {false, true})
     {
-        std::string eval_file = std::string(Options[EvFiles[small]]);
+        std::string eval_file = std::string(small ? EvalFileDefaultNameSmall : Options[EvFiles[small]]);
         if (eval_file.empty())
             eval_file = EvFileNames[small];
 
