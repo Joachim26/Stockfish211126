@@ -189,13 +189,13 @@ Value Eval::evaluate(const Position& pos) {
     int   shuffling  = pos.rule50_count();
     int   simpleEval = simple_eval(pos, stm);
 
-    bool lazy = abs(simpleEval) > 2300;
+    bool lazy = abs(simpleEval) > 2550;
+
     if (lazy)
         v = simpleEval;
     else
     {
-        bool smallNet = abs(simpleEval) > 1100;
-
+        bool smallNet = abs(simpleEval) > 1050;
         int nnueComplexity;
 
         Value nnue = smallNet ? NNUE::evaluate<NNUE::Small>(pos, true, &nnueComplexity)
