@@ -22,6 +22,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -35,6 +36,9 @@
 #include "types.h"
 #include "uci.h"
 
+#include <random>
+#include <chrono>
+
 // Macro to embed the default efficiently updatable neural network (NNUE) file
 // data in the engine binary (using incbin.h, by Dale Weiler).
 // This macro invocation will declare the following three variables
@@ -43,11 +47,15 @@
 //     const unsigned int         gEmbeddedNNUESize;    // the size of the embedded file
 // Note that this does not work in Microsoft Visual Studio.
 #if !defined(_MSC_VER) && !defined(NNUE_EMBEDDING_OFF)
-INCBIN(EmbeddedNNUE, EvalFileDefaultName);
+INCBIN(EmbeddedNNUEBig, EvalFileDefaultNameBig);
+INCBIN(EmbeddedNNUESmall, EvalFileDefaultNameSmall);
 #else
-const unsigned char        gEmbeddedNNUEData[1] = {0x0};
-const unsigned char* const gEmbeddedNNUEEnd     = &gEmbeddedNNUEData[1];
-const unsigned int         gEmbeddedNNUESize    = 1;
+const unsigned char        gEmbeddedNNUEBigData[1]   = {0x0};
+const unsigned char* const gEmbeddedNNUEBigEnd       = &gEmbeddedNNUEBigData[1];
+const unsigned int         gEmbeddedNNUEBigSize      = 1;
+const unsigned char        gEmbeddedNNUESmallData[1] = {0x0};
+const unsigned char* const gEmbeddedNNUESmallEnd     = &gEmbeddedNNUESmallData[1];
+const unsigned int         gEmbeddedNNUESmallSize    = 1;
 #endif
 
 
@@ -55,8 +63,13 @@ namespace Stockfish {
 
 namespace Eval {
 
-std::string currentEvalFileName = "None";
+std::string       currentEvalFileName[2] = {"None", "None"};
+const std::string EvFiles[2]             = {"EvalFile", "EvalFileSmall"};
+const std::string EvFileNames[2]         = {EvalFileDefaultNameBig, EvalFileDefaultNameSmall};
 
+int NNUE::RandomEvalPerturb = 0;
+int NNUE::waitms = 0;
+  
 // Tries to load a NNUE network at startup time, or when the engine
 // receives a UCI command "setoption name EvalFile value nn-[a-z0-9]{12}.nnue"
 // The name of the NNUE network is always retrieved from the EvalFile option.
@@ -66,92 +79,93 @@ std::string currentEvalFileName = "None";
 // variable to have the engine search in a special directory in their distro.
 void NNUE::init() {
 
-    std::string eval_file = std::string(Options["EvalFile"]);
-    if (eval_file.empty())
-        eval_file = EvalFileDefaultName;
+    for (bool small : {false, true})
+    {
+        std::string eval_file =
+          std::string(small ? EvalFileDefaultNameSmall : Options[EvFiles[small]]);
+        if (eval_file.empty())
+            eval_file = EvFileNames[small];
 
 #if defined(DEFAULT_NNUE_DIRECTORY)
-    std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory,
-                                     stringify(DEFAULT_NNUE_DIRECTORY)};
+        std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory,
+                                         stringify(DEFAULT_NNUE_DIRECTORY)};
 #else
-    std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory};
+        std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory};
 #endif
 
-    for (const std::string& directory : dirs)
-        if (currentEvalFileName != eval_file)
+        for (const std::string& directory : dirs)
         {
-            if (directory != "<internal>")
+            if (currentEvalFileName[small] != eval_file)
             {
-                std::ifstream stream(directory + eval_file, std::ios::binary);
-                if (NNUE::load_eval(eval_file, stream))
-                    currentEvalFileName = eval_file;
-            }
+                if (directory != "<internal>")
+                {
+                    std::ifstream stream(directory + eval_file, std::ios::binary);
+                    if (NNUE::load_eval(eval_file, stream, small))
+                        currentEvalFileName[small] = eval_file;
+                }
 
-            if (directory == "<internal>" && eval_file == EvalFileDefaultName)
-            {
-                // C++ way to prepare a buffer for a memory stream
-                class MemoryBuffer: public std::basic_streambuf<char> {
-                   public:
-                    MemoryBuffer(char* p, size_t n) {
-                        setg(p, p, p + n);
-                        setp(p, p + n);
-                    }
-                };
+                if (directory == "<internal>" && eval_file == EvFileNames[small])
+                {
+                    // C++ way to prepare a buffer for a memory stream
+                    class MemoryBuffer: public std::basic_streambuf<char> {
+                       public:
+                        MemoryBuffer(char* p, size_t n) {
+                            setg(p, p, p + n);
+                            setp(p, p + n);
+                        }
+                    };
 
-                MemoryBuffer buffer(
-                  const_cast<char*>(reinterpret_cast<const char*>(gEmbeddedNNUEData)),
-                  size_t(gEmbeddedNNUESize));
-                (void) gEmbeddedNNUEEnd;  // Silence warning on unused variable
+                    MemoryBuffer buffer(
+                      const_cast<char*>(reinterpret_cast<const char*>(
+                        small ? gEmbeddedNNUESmallData : gEmbeddedNNUEBigData)),
+                      size_t(small ? gEmbeddedNNUESmallSize : gEmbeddedNNUEBigSize));
+                    (void) gEmbeddedNNUEBigEnd;  // Silence warning on unused variable
+                    (void) gEmbeddedNNUESmallEnd;
 
-                std::istream stream(&buffer);
-                if (NNUE::load_eval(eval_file, stream))
-                    currentEvalFileName = eval_file;
+                    std::istream stream(&buffer);
+                    if (NNUE::load_eval(eval_file, stream, small))
+                        currentEvalFileName[small] = eval_file;
+                }
             }
         }
+    }
 }
 
 // Verifies that the last net used was loaded successfully
 void NNUE::verify() {
 
-    std::string eval_file = std::string(Options["EvalFile"]);
-    if (eval_file.empty())
-        eval_file = EvalFileDefaultName;
-
-    if (currentEvalFileName != eval_file)
+    for (bool small : {false, true})
     {
+        std::string eval_file =
+          std::string(small ? EvalFileDefaultNameSmall : Options[EvFiles[small]]);
+        if (eval_file.empty())
+            eval_file = EvFileNames[small];
 
-        std::string msg1 =
-          "Network evaluation parameters compatible with the engine must be available.";
-        std::string msg2 = "The network file " + eval_file + " was not loaded successfully.";
-        std::string msg3 = "The UCI option EvalFile might need to specify the full path, "
-                           "including the directory name, to the network file.";
-        std::string msg4 = "The default net can be downloaded from: "
-                           "https://tests.stockfishchess.org/api/nn/"
-                         + std::string(EvalFileDefaultName);
-        std::string msg5 = "The engine will be terminated now.";
+        if (currentEvalFileName[small] != eval_file)
+        {
+            std::string msg1 =
+              "Network evaluation parameters compatible with the engine must be available.";
+            std::string msg2 = "The network file " + eval_file + " was not loaded successfully.";
+            std::string msg3 = "The UCI option EvalFile might need to specify the full path, "
+                               "including the directory name, to the network file.";
+            std::string msg4 = "The default net can be downloaded from: "
+                               "https://tests.stockfishchess.org/api/nn/"
+                             + std::string(EvFileNames[small]);
+            std::string msg5 = "The engine will be terminated now.";
 
-        sync_cout << "info string ERROR: " << msg1 << sync_endl;
-        sync_cout << "info string ERROR: " << msg2 << sync_endl;
-        sync_cout << "info string ERROR: " << msg3 << sync_endl;
-        sync_cout << "info string ERROR: " << msg4 << sync_endl;
-        sync_cout << "info string ERROR: " << msg5 << sync_endl;
+            sync_cout << "info string ERROR: " << msg1 << sync_endl;
+            sync_cout << "info string ERROR: " << msg2 << sync_endl;
+            sync_cout << "info string ERROR: " << msg3 << sync_endl;
+            sync_cout << "info string ERROR: " << msg4 << sync_endl;
+            sync_cout << "info string ERROR: " << msg5 << sync_endl;
 
-        exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
+        }
+
+        sync_cout << "info string NNUE evaluation using " << eval_file << sync_endl;
     }
-
-    sync_cout << "info string NNUE evaluation using " << eval_file << sync_endl;
 }
 }
-
-
-// Returns a static, purely materialistic evaluation of the position from
-// the point of view of the given color. It can be divided by PawnValue to get
-// an approximation of the material advantage on the board in terms of pawns.
-Value Eval::simple_eval(const Position& pos, Color c) {
-    return PawnValue * (pos.count<PAWN>(c) - pos.count<PAWN>(~c))
-         + (pos.non_pawn_material(c) - pos.non_pawn_material(~c));
-}
-
 
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
@@ -162,18 +176,19 @@ Value Eval::evaluate(const Position& pos) {
     Value v;
     Color stm        = pos.side_to_move();
     int   shuffling  = pos.rule50_count();
-    int   simpleEval = simple_eval(pos, stm) + (int(pos.key() & 7) - 3);
+    int   simpleEval = pos.simple_eval();
 
-    bool lazy = abs(simpleEval) >= RookValue + KnightValue + 16 * shuffling * shuffling
-                                     + abs(pos.this_thread()->bestValue)
-                                     + abs(pos.this_thread()->rootSimpleEval);
-
+    bool lazy = abs(simpleEval) > 2300;
     if (lazy)
         v = Value(simpleEval);
     else
     {
-        int   nnueComplexity;
-        Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
+        bool smallNet = abs(simpleEval) > 1100;
+
+        int nnueComplexity;
+
+        Value nnue = smallNet ? NNUE::evaluate<true>(pos, true, &nnueComplexity)
+                              : NNUE::evaluate<false>(pos, true, &nnueComplexity);
 
         Value optimism = pos.this_thread()->optimism[stm];
 
@@ -187,6 +202,21 @@ Value Eval::evaluate(const Position& pos) {
 
     // Damp down the evaluation linearly when shuffling
     v = v * (200 - shuffling) / 214;
+
+    // SFnps Begin //
+    if((NNUE::RandomEvalPerturb) || (NNUE::waitms))
+    {
+      // waitms millisecs
+      std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::waitms));
+
+      // RandomEval
+      static thread_local std::mt19937_64 rng = [](){return std::mt19937_64(std::time(0));}();
+      std::normal_distribution<float> d(0.0, PawnValue);
+      float r = d(rng);
+      r = std::clamp<float>(r, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+      v = (NNUE::RandomEvalPerturb * Value(r) + (100 - NNUE::RandomEvalPerturb) * v) / 100;
+    }
+    // SFnps End //
 
     // Guarantee evaluation does not hit the tablebase range
     v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
@@ -216,7 +246,7 @@ std::string Eval::trace(Position& pos) {
     ss << std::showpoint << std::showpos << std::fixed << std::setprecision(2) << std::setw(15);
 
     Value v;
-    v = NNUE::evaluate(pos, false);
+    v = NNUE::evaluate<false>(pos, false);
     v = pos.side_to_move() == WHITE ? v : -v;
     ss << "NNUE evaluation        " << 0.01 * UCI::to_cp(v) << " (white side)\n";
 

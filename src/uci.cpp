@@ -48,7 +48,14 @@ namespace {
 // FEN string for the initial position in standard chess
 const char* StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-
+// GCC PGO fix, does not work for GCC
+/*
+  #ifdef __GNUC__
+    #ifndef __clang__
+      extern "C" void __gcov_dump();
+    #endif
+  #endif
+*/
 // Called when the engine receives the "position" UCI command.
 // It sets up the position that is described in the given FEN string ("fen") or
 // the initial position ("startpos") and then makes the moves given in the following
@@ -215,6 +222,15 @@ void bench(Position& pos, std::istream& args, StateListPtr& states) {
     elapsed = now() - elapsed + 1;  // Ensure positivity to avoid a 'divide by zero'
 
     dbg_print();
+    
+    // GCC PGO fix
+/*
+    #ifdef __GNUC__
+      #ifndef __clang__
+        __gcov_dump();
+      #endif
+    #endif
+*/
 
     std::cerr << "\n==========================="
               << "\nTotal time (ms) : " << elapsed << "\nNodes searched  : " << nodes
@@ -320,7 +336,7 @@ void UCI::loop(int argc, char* argv[]) {
             std::string                f;
             if (is >> std::skipws >> f)
                 filename = f;
-            Eval::NNUE::save_eval(filename);
+            Eval::NNUE::save_eval(filename, false);
         }
         else if (token == "--help" || token == "help" || token == "--license" || token == "license")
             sync_cout
