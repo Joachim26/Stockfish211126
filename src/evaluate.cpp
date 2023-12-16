@@ -82,8 +82,8 @@ void NNUE::init() {
 
     for (NetSize netSize : {Big, Small})
     {
-        std::string eval_file =
-          std::string eval_file = std::string(Options[EvFiles[netSize]]);
+        std::string eval_file = std::string(Options[EvFiles[netSize]]);
+      
         if (eval_file.empty())
             eval_file = EvFileNames[netSize];
 
@@ -137,8 +137,8 @@ void NNUE::verify() {
 
     for (NetSize netSize : {Big, Small})
     {
-        std::string eval_file =
-          std::string eval_file = std::string(Options[EvFiles[netSize]]);
+        std::string eval_file = std::string(Options[EvFiles[netSize]]);
+      
         if (eval_file.empty())
             eval_file = EvFileNames[netSize];
 
