@@ -222,7 +222,7 @@ void bench(Position& pos, std::istream& args, StateListPtr& states) {
     elapsed = now() - elapsed + 1;  // Ensure positivity to avoid a 'divide by zero'
 
     dbg_print();
-
+    
     // GCC PGO fix
 /*
     #ifdef __GNUC__
@@ -370,9 +370,9 @@ std::string UCI::value(Value v) {
 
     std::stringstream ss;
 
-    if (abs(v) < VALUE_TB_WIN_IN_MAX_PLY)
+    if (std::abs(v) < VALUE_TB_WIN_IN_MAX_PLY)
         ss << "cp " << UCI::to_cp(v);
-    else if (abs(v) <= VALUE_TB)
+    else if (std::abs(v) <= VALUE_TB)
     {
         const int ply = VALUE_TB - std::abs(v);  // recompute ss->ply
         ss << "cp " << (v > 0 ? 20000 - ply : -20000 + ply);

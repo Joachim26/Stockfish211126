@@ -92,7 +92,6 @@ void init(OptionsMap& o) {
     o["EvalFile"]              << Option(EvalFileDefaultName, on_eval_file);
 }
 
-
 // Used to print all the options default values in chronological
 // insertion order (the idx field) and in the format defined by the UCI protocol.
 std::ostream& operator<<(std::ostream& os, const OptionsMap& om) {
