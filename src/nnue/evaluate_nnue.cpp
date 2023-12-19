@@ -216,7 +216,7 @@ Value evaluate(const Position& pos, bool adjusted, int* complexity) {
                                   : networkBig[bucket]->propagate(transformedFeatures);
 
     if (complexity)
-        *complexity = abs(psqt - positional) / OutputScale;
+        *complexity = std::abs(psqt - positional) / OutputScale;
 
     // Give more value to positional evaluation when adjusted flag is set
     if (adjusted)
