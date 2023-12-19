@@ -7,7 +7,7 @@ name: Stockfish
 on:
   pull_request_target:
     branches:
-      - 'XXmaster'
+      - 'master'
     paths:
       - '**.cpp'
       - '**.h'

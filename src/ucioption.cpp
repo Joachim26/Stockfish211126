@@ -78,7 +78,6 @@ void init(OptionsMap& o) {
     o["Ponder"]                << Option(false);
     o["MultiPV"]               << Option(1, 1, 500);
     o["Skill Level"]           << Option(20, 0, 20);
-    o["Move Overhead"]         << Option(10, 0, 5000);
     o["nodestime"]             << Option(0, 0, 10000);
     o["UCI_Chess960"]          << Option(false);
     o["UCI_AnalyseMode"]       << Option(false);

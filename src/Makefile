@@ -403,12 +403,12 @@ endif
 ifeq ($(COMP),gcc)
 	comp=gcc
 	CXX=g++
-	CXXFLAGS += -pedantic -Wextra -Wshadow -Wmissing-declarations -flax-vector-conversions
+	CXXFLAGS += -pedantic -Wextra -Wshadow -Wmissing-declarations
 
 	ifeq ($(arch),$(filter $(arch),armv7 armv8 riscv64))
 		ifeq ($(OS),Android)
 			CXXFLAGS +=
-			LDFLAGS += -lgcov -static-libstdc++
+			LDFLAGS += -lgcov
 		endif
 		ifeq ($(ARCH),riscv64)
 			CXXFLAGS += -latomic
