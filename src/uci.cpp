@@ -47,16 +47,15 @@ namespace {
 
 // FEN string for the initial position in standard chess
 const char* StartFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-  
+
 // GCC PGO fix, does not work for GCC
 /*
-#ifdef __GNUC__
-  #ifndef __clang__
-    extern "C" void __gcov_dump();   
+  #ifdef __GNUC__
+    #ifndef __clang__
+      extern "C" void __gcov_dump();
+    #endif
   #endif
-#endif
 */
-
 // Called when the engine receives the "position" UCI command.
 // It sets up the position that is described in the given FEN string ("fen") or
 // the initial position ("startpos") and then makes the moves given in the following
@@ -223,8 +222,8 @@ void bench(Position& pos, std::istream& args, StateListPtr& states) {
     elapsed = now() - elapsed + 1;  // Ensure positivity to avoid a 'divide by zero'
 
     dbg_print();
-
-   // GCC PGO fix
+    
+    // GCC PGO fix
 /*
     #ifdef __GNUC__
       #ifndef __clang__
@@ -232,7 +231,6 @@ void bench(Position& pos, std::istream& args, StateListPtr& states) {
       #endif
     #endif
 */
-    
     std::cerr << "\n==========================="
               << "\nTotal time (ms) : " << elapsed << "\nNodes searched  : " << nodes
               << "\nNodes/second    : " << 1000 * nodes / elapsed << std::endl;
@@ -371,9 +369,9 @@ std::string UCI::value(Value v) {
 
     std::stringstream ss;
 
-    if (abs(v) < VALUE_TB_WIN_IN_MAX_PLY)
+    if (std::abs(v) < VALUE_TB_WIN_IN_MAX_PLY)
         ss << "cp " << UCI::to_cp(v);
-    else if (abs(v) <= VALUE_TB)
+    else if (std::abs(v) <= VALUE_TB)
     {
         const int ply = VALUE_TB - std::abs(v);  // recompute ss->ply
         ss << "cp " << (v > 0 ? 20000 - ply : -20000 + ply);
