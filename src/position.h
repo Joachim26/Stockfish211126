@@ -27,7 +27,6 @@
 
 #include "bitboard.h"
 #include "nnue/nnue_accumulator.h"
-#include "nnue/nnue_architecture.h"
 #include "types.h"
 
 namespace Stockfish {
@@ -58,9 +57,8 @@ struct StateInfo {
     int        repetition;
 
     // Used by NNUE
-    Eval::NNUE::Accumulator<Eval::NNUE::TransformedFeatureDimensionsBig>   accumulatorBig;
-    Eval::NNUE::Accumulator<Eval::NNUE::TransformedFeatureDimensionsSmall> accumulatorSmall;
-    DirtyPiece                                                             dirtyPiece;
+    Eval::NNUE::Accumulator accumulator;
+    DirtyPiece              dirtyPiece;
 };
 
 
