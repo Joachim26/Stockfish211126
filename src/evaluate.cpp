@@ -172,7 +172,7 @@ void NNUE::verify() {
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
-Value Eval::simple_eval(const Position& pos, Color c) {
+int Eval::simple_eval(const Position& pos, Color c) {
     return PawnValue * (pos.count<PAWN>(c) - pos.count<PAWN>(~c))
          + (pos.non_pawn_material(c) - pos.non_pawn_material(~c));
 }
@@ -184,14 +184,14 @@ Value Eval::evaluate(const Position& pos) {
 
     assert(!pos.checkers());
 
-    Value v;
+    int   v;
     Color stm        = pos.side_to_move();
     int   shuffling  = pos.rule50_count();
     int   simpleEval = simple_eval(pos, stm);
 
     bool lazy = abs(simpleEval) > 2300;
     if (lazy)
-        v = Value(simpleEval);
+        v = simpleEval;
     else
     {
         bool smallNet = abs(simpleEval) > 1100;
@@ -201,7 +201,7 @@ Value Eval::evaluate(const Position& pos) {
         Value nnue = smallNet ? NNUE::evaluate<NNUE::Small>(pos, true, &nnueComplexity)
                               : NNUE::evaluate<NNUE::Big>(pos, true, &nnueComplexity);
 
-        Value optimism = pos.this_thread()->optimism[stm];
+        int optimism = pos.this_thread()->optimism[stm];
 
         // Blend optimism and eval with nnue complexity and material imbalance
         optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 512;
@@ -230,7 +230,7 @@ Value Eval::evaluate(const Position& pos) {
     // SFnps End //
 
     // Guarantee evaluation does not hit the tablebase range
-    v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+    v = std::clamp(int(v), VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
     return v;
 }
