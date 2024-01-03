@@ -361,16 +361,18 @@ namespace Stockfish::Eval::NNUE {
       // Gather all features to be updated.
       const Square ksq = pos.square<KING>(Perspective);
 
-      // The size must be enough to contain the largest possible update.
-      // That might depend on the feature set and generally relies on the
-      // feature set's update cost calculation to be correct and never
-      // allow updates with more added/removed features than MaxActiveDimensions.
-      FeatureSet::IndexList removed[N-1], added[N-1];
+        // The size must be enough to contain the largest possible update.
+        // That might depend on the feature set and generally relies on the
+        // feature set's update cost calculation to be correct and never allow
+        // updates with more added/removed features than MaxActiveDimensions.
+        FeatureSet::IndexList removed[N - 1], added[N - 1];
 
-      {
-        int i = N-2; // last potential state to update. Skip last element because it must be nullptr.
-        while (states_to_update[i] == nullptr)
-          --i;
+        {
+            int i =
+              N
+              - 2;  // Last potential state to update. Skip last element because it must be nullptr.
+            while (states_to_update[i] == nullptr)
+                --i;
 
         StateInfo* st2 = states_to_update[i];
 
