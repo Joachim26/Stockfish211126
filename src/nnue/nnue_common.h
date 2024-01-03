@@ -31,19 +31,19 @@
 #include "../misc.h"
 
 #if defined(USE_AVX2)
-    #include <immintrin.h>
+#include <immintrin.h>
 
 #elif defined(USE_SSE41)
-    #include <smmintrin.h>
+#include <smmintrin.h>
 
 #elif defined(USE_SSSE3)
-    #include <tmmintrin.h>
+#include <tmmintrin.h>
 
 #elif defined(USE_SSE2)
-    #include <emmintrin.h>
+#include <emmintrin.h>
 
 #elif defined(USE_NEON)
-    #include <arm_neon.h>
+#include <arm_neon.h>
 #endif
 
 namespace Stockfish::Eval::NNUE {
@@ -130,7 +130,7 @@ inline void write_little_endian(std::ostream& stream, IntType value) {
         {
             for (; i + 1 < sizeof(IntType); ++i)
             {
-                u[i] = std::uint8_t(v);
+                u[i] = (std::uint8_t)v;
                 v >>= 8;
             }
         }
@@ -281,4 +281,4 @@ inline void write_leb_128(std::ostream& stream, const IntType* values, std::size
 
 }  // namespace Stockfish::Eval::NNUE
 
-#endif  // #ifndef NNUE_COMMON_H_INCLUDED
+#endif // #ifndef NNUE_COMMON_H_INCLUDED
