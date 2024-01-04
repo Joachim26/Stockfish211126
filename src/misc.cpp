@@ -159,13 +159,13 @@ class Logger {
 // Stockfish version
 std::string engine_info(bool to_uci) {
     std::stringstream ss;
-    ss << "Stockfish " << version << std::setfill('0');
+    ss << "SFDNNv6" << version << std::setfill('0');
 
     if constexpr (version == "dev")
     {
-        ss << "-";
+        ss << "_";
 #ifdef GIT_DATE
-        ss << stringify(GIT_DATE);
+        //ss << stringify(GIT_DATE);
 #else
         constexpr std::string_view months("Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec");
         std::string                month, day, year;
@@ -176,16 +176,16 @@ std::string engine_info(bool to_uci) {
            << std::setw(2) << std::setfill('0') << day;
 #endif
 
-        ss << "-";
+        //ss << "-";
 
 #ifdef GIT_SHA
-        ss << stringify(GIT_SHA);
+        //ss << stringify(GIT_SHA);
 #else
-        ss << "nogit";
+        //ss << "nogit";
 #endif
     }
 
-    ss << (to_uci ? "\nid author " : " by ") << "the Stockfish developers (see AUTHORS file)";
+    ss << (to_uci ? "\nid author " : " by ") << "the Stockfish Devs (see AUTHORS file) + Joachim26";
 
     return ss.str();
 }
