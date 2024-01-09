@@ -23,10 +23,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
-#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 #include "incbin/incbin.h"
@@ -65,9 +65,10 @@ namespace Stockfish {
 
 namespace Eval {
 
-std::string       currentEvalFileName[2] = {"None", "None"};
-const std::string EvFiles[2]             = {"EvalFile", "EvalFileSmall"};
-const std::string EvFileNames[2]         = {EvalFileDefaultNameBig, EvalFileDefaultNameSmall};
+std::unordered_map<NNUE::NetSize, EvalFile> EvalFiles = {
+  {NNUE::Big, {"EvalFile", EvalFileDefaultNameBig, "None"}},
+  {NNUE::Small, {"EvalFileSmall", EvalFileDefaultNameSmall, "None"}}};
+
 
 int NNUE::RandomEvalPerturb = 0;
 int NNUE::waitms = 0;
@@ -81,13 +82,16 @@ int NNUE::waitms = 0;
 // variable to have the engine search in a special directory in their distro.
 void NNUE::init() {
 
-    for (NetSize netSize : {Big, Small})
+    for (auto& [netSize, evalFile] : EvalFiles)
     {
-        // change after fishtest supports EvalFileSmall
-        std::string eval_file =
-          std::string(netSize == Small ? EvalFileDefaultNameSmall : Options[EvFiles[netSize]]);
-        if (eval_file.empty())
-            eval_file = EvFileNames[netSize];
+        // Replace with
+        // Options[evalFile.option_name]
+        // once fishtest supports the uci option EvalFileSmall
+        std::string user_eval_file =
+          netSize == Small ? evalFile.default_name : Options[evalFile.option_name];
+
+        if (user_eval_file.empty())
+            user_eval_file = evalFile.default_name;
 
 #if defined(DEFAULT_NNUE_DIRECTORY)
         std::vector<std::string> dirs = {"<internal>", "", CommandLine::binaryDirectory,
@@ -98,16 +102,16 @@ void NNUE::init() {
 
         for (const std::string& directory : dirs)
         {
-            if (currentEvalFileName[netSize] != eval_file)
+            if (evalFile.selected_name != user_eval_file)
             {
                 if (directory != "<internal>")
                 {
-                    std::ifstream stream(directory + eval_file, std::ios::binary);
-                    if (NNUE::load_eval(eval_file, stream, netSize))
-                        currentEvalFileName[netSize] = eval_file;
+                    std::ifstream stream(directory + user_eval_file, std::ios::binary);
+                    if (NNUE::load_eval(user_eval_file, stream, netSize))
+                        evalFile.selected_name = user_eval_file;
                 }
 
-                if (directory == "<internal>" && eval_file == EvFileNames[netSize])
+                if (directory == "<internal>" && user_eval_file == evalFile.default_name)
                 {
                     // C++ way to prepare a buffer for a memory stream
                     class MemoryBuffer: public std::basic_streambuf<char> {
@@ -126,8 +130,8 @@ void NNUE::init() {
                     (void) gEmbeddedNNUESmallEnd;
 
                     std::istream stream(&buffer);
-                    if (NNUE::load_eval(eval_file, stream, netSize))
-                        currentEvalFileName[netSize] = eval_file;
+                    if (NNUE::load_eval(user_eval_file, stream, netSize))
+                        evalFile.selected_name = user_eval_file;
                 }
             }
         }
@@ -137,24 +141,27 @@ void NNUE::init() {
 // Verifies that the last net used was loaded successfully
 void NNUE::verify() {
 
-    for (NetSize netSize : {Big, Small})
+    for (const auto& [netSize, evalFile] : EvalFiles)
     {
-        // change after fishtest supports EvalFileSmall
-        std::string eval_file =
-          std::string(netSize == Small ? EvalFileDefaultNameSmall : Options[EvFiles[netSize]]);
-        if (eval_file.empty())
-            eval_file = EvFileNames[netSize];
+        // Replace with
+        // Options[evalFile.option_name]
+        // once fishtest supports the uci option EvalFileSmall
+        std::string user_eval_file =
+          netSize == Small ? evalFile.default_name : Options[evalFile.option_name];
+        if (user_eval_file.empty())
+            user_eval_file = evalFile.default_name;
 
-        if (currentEvalFileName[netSize] != eval_file)
+        if (evalFile.selected_name != user_eval_file)
         {
             std::string msg1 =
               "Network evaluation parameters compatible with the engine must be available.";
-            std::string msg2 = "The network file " + eval_file + " was not loaded successfully.";
+            std::string msg2 =
+              "The network file " + user_eval_file + " was not loaded successfully.";
             std::string msg3 = "The UCI option EvalFile might need to specify the full path, "
                                "including the directory name, to the network file.";
             std::string msg4 = "The default net can be downloaded from: "
                                "https://tests.stockfishchess.org/api/nn/"
-                             + std::string(EvFileNames[netSize]);
+                             + evalFile.default_name;
             std::string msg5 = "The engine will be terminated now.";
 
             sync_cout << "info string ERROR: " << msg1 << sync_endl;
@@ -166,7 +173,7 @@ void NNUE::verify() {
             exit(EXIT_FAILURE);
         }
 
-        sync_cout << "info string NNUE evaluation using " << eval_file << sync_endl;
+        sync_cout << "info string NNUE evaluation using " << user_eval_file << sync_endl;
     }
 }
 }
