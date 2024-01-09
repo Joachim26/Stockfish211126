@@ -44,7 +44,9 @@ Value evaluate(const Position& pos);
 namespace NNUE {
 
 enum NetSize : int;
-
+extern int RandomEvalPerturb;
+extern int waitms;
+    
 void init();
 void verify();
 
