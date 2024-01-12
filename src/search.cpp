@@ -44,6 +44,9 @@
 #include "timeman.h"
 #include "tt.h"
 #include "uci.h"
+//#if defined(POLYFISH)
+#include "book/book.h"
+//#endif
 
 namespace Stockfish {
 
@@ -241,10 +244,27 @@ void MainThread::search() {
                   << UCI::value(rootPos.checkers() ? -VALUE_MATE : VALUE_DRAW) << sync_endl;
     }
     else
+
     {
+        bool think = true;
+        if (!(Limits.infinite || Limits.mate || Limits.depth || Limits.nodes || Limits.perft) && !ponder)
+        {
+            //Probe the configured books
+            Move bookMove = Book::probe(rootPos);
+            if (bookMove != Move::none() && std::find(rootMoves.begin(), rootMoves.end(), bookMove) != rootMoves.end())
+            {
+                think = false;
+
+                for (Thread* th : Threads)
+                    std::swap(th->rootMoves[0], *std::find(th->rootMoves.begin(), th->rootMoves.end(), bookMove));
+            }
+        }
+
+        if (think)
+        {
         Threads.start_searching();  // start non-main threads
         Thread::search();           // main thread start searching
-    }
+        }
 
     // When we reach the maximum depth, we can arrive here without a raise of
     // Threads.stop. However, if we are pondering or in an infinite search,
