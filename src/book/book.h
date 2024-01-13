@@ -7,7 +7,7 @@
 #include "../types.h"
 #include "../position.h"
 
-namespace Polyfish::Book
+namespace Stockfish::Book
 {
     namespace BookUtil
     {
