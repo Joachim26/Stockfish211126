@@ -262,9 +262,10 @@ void MainThread::search() {
 
         if (think)
         {
-        Threads.start_searching();  // start non-main threads
-        Thread::search();           // main thread start searching
+            Threads.start_searching();  // start non-main threads
+            Thread::search();           // main thread start searching
         }
+    }
 
     // When we reach the maximum depth, we can arrive here without a raise of
     // Threads.stop. However, if we are pondering or in an infinite search,
