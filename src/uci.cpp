@@ -64,17 +64,11 @@ UCI::UCI(int argc, char** argv) :
         tt.resize(o, options["Threads"]);
     });
 
-    //options["Wait ms"] << Option(0, 0, 100, on_WaitMs);
-    options["Wait ms"] << Option(0, 1, 100, [this](const Option& o) {
-        Eval::NNUE::WaitMs = o;
-    });
+    //old: options["Wait ms"] << Option(0, 0, 100, on_WaitMs);
+    options["Wait ms"] << Option(0, 1, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; });
 
-    //options["Random Eval"] << Option(0, 0, 100, on_RandomEval);
-    options["Random Eval"] << Option(0, 1, 100, [this](const Option& o) {
-        Eval::NNUE::RandomEval = o;
-    });
-
-
+    //old: options["Random Eval"] << Option(0, 0, 100, on_RandomEval);
+    options["Random Eval"] << Option(0, 1, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; });
 
     options["Search Nodes"] << Option(0, 0, 1000000);
     options["Search Depth"] << Option(0, 0, 20);
