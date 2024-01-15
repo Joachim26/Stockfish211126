@@ -56,6 +56,9 @@ struct EvalFile {
 namespace NNUE {
 
 enum NetSize : int;
+extern int RandomEval;
+extern int WaitMs;
+
 
 using EvalFiles = std::unordered_map<Eval::NNUE::NetSize, EvalFile>;
 
