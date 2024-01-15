@@ -64,6 +64,10 @@ UCI::UCI(int argc, char** argv) :
         tt.resize(o, options["Threads"]);
     });
 
+    options["Wait ms"] << Option(0, 0, 100, on_WaitMs);
+    options["Random Eval"] << Option(0, 0, 100, on_RandomEval);
+    options["Search Nodes"] << Option(0, 0, 1000000);
+    options["Search Depth"] << Option(0, 0, 20);
     options["Clear Hash"] << Option([this](const Option&) { search_clear(); });
     options["Ponder"] << Option(false);
     options["MultiPV"] << Option(1, 1, MAX_MOVES);
