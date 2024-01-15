@@ -59,6 +59,7 @@ void TimeManagement::init(Search::LimitsType& limits,
         return;
 
     TimePoint moveOverhead = TimePoint(options["Move Overhead"]);
+    TimePoint slowMover    = TimePoint(options["Slow Mover"]);
     TimePoint npmsec       = TimePoint(options["nodestime"]);
 
     // optScale is a percentage of available time to use for the current move.
@@ -95,6 +96,10 @@ void TimeManagement::init(Search::LimitsType& limits,
     // Calculate time constants based on current time left.
     double optConstant = std::min(0.00334 + 0.0003 * std::log10(limits.time[us] / 1000.0), 0.0049);
     double maxConstant = std::max(3.4 + 3.0 * std::log10(limits.time[us] / 1000.0), 2.76);
+
+    // A user may scale time usage by setting UCI option "Slow Mover"
+    // Default is 100 and changing this value will probably lose elo.
+    timeLeft = slowMover * timeLeft / 100;
 
     // x basetime (+ z increment)
     // If there is a healthy increment, timeLeft can exceed actual available
