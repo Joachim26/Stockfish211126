@@ -184,7 +184,7 @@ void Search::Worker::start_searching() {
 
     //SFnps Begin
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
-    if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
+    if (options["Search Depth"]) limits.depth = 1 + int(options["Search Depth"]);
     //SFnps End
 
     if (rootMoves.empty())
