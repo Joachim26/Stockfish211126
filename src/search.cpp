@@ -190,8 +190,8 @@ void Search::Worker::start_searching() {
     tt.new_search();
 
     //SFnps Begin
-    if (Options["Search Nodes"]) Limits.nodes = int(Options["Search Nodes"]);
-    if (Options["Search Depth"]) Limits.depth = int(Options["Search Depth"]);
+    if (options["Search Nodes"]) Limits.nodes = int(options["Search Nodes"]);
+    if (options["Search Depth"]) Limits.depth = int(options["Search Depth"]);
     //SFnps End
 
     if (rootMoves.empty())
