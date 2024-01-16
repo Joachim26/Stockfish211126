@@ -189,6 +189,11 @@ void Search::Worker::start_searching() {
     main_manager()->tm.init(limits, rootPos.side_to_move(), rootPos.game_ply(), options);
     tt.new_search();
 
+    //SFnps Begin
+    if (Options["Search Nodes"]) Limits.nodes = int(Options["Search Nodes"]);
+    if (Options["Search Depth"]) Limits.depth = int(Options["Search Depth"]);
+    //SFnps End
+
     if (rootMoves.empty())
     {
         rootMoves.emplace_back(Move::none());
