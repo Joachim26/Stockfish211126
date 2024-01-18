@@ -159,11 +159,11 @@ class Logger {
 // Stockfish version
 std::string engine_info(bool to_uci) {
     std::stringstream ss;
-    ss << "Stockfish " << version << std::setfill('0');
+    ss << "SFSnps_" << std::setfill('0');
 
     if constexpr (version == "dev")
     {
-        ss << "-";
+        //ss << "-";
 #ifdef GIT_DATE
         ss << stringify(GIT_DATE);
 #else
@@ -176,12 +176,12 @@ std::string engine_info(bool to_uci) {
            << std::setw(2) << std::setfill('0') << day;
 #endif
 
-        ss << "-";
+        //ss << "-";
 
 #ifdef GIT_SHA
-        ss << stringify(GIT_SHA);
+        //ss << stringify(GIT_SHA);
 #else
-        ss << "nogit";
+        //ss << "nogit";
 #endif
     }
 
