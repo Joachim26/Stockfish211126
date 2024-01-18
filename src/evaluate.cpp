@@ -214,7 +214,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
         v = simpleEval;
     else
     {
-        bool smallNet = false; //std::abs(simpleEval) > 1050;
+        bool smallNet = std::abs(simpleEval) > 1050;
 
         int nnueComplexity;
 
