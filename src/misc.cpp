@@ -159,7 +159,7 @@ class Logger {
 // Stockfish version
 std::string engine_info(bool to_uci) {
     std::stringstream ss;
-    ss << "SFDS9_" << version << std::setfill('0');
+    ss << "SFnps_" << version << std::setfill('0');
 
     if constexpr (version == "dev")
     {
