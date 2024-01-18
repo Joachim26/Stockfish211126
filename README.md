@@ -1,4 +1,10 @@
+
+<strong>[Note: This master branch is no more updated. Development of several new engine series has moved to the Main and Main_xxxx branches.](https://github.com/Joachim26/StockfishNPS/tree/Main)</strong>
+
 <div align="center">
+
+<h3>_______________________________</h3>
+
 
   [![Stockfish][stockfish128-logo]][website-link]
 
