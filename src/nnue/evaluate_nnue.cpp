@@ -50,7 +50,7 @@ LargePagePtr<FeatureTransformer<TransformedFeatureDimensionsSmall, &StateInfo::a
 
 // Evaluation function
 AlignedPtr<Network<TransformedFeatureDimensionsBig, L2Big, L3Big>>       networkBig[LayerStacks];
-AlignedPtr<Network<TransformedFeatureDimensionsSmall, L2Small, L3Small>> networkSmall[LayerStacks];
+AlignedPtr<Network<TransformedFeaturDimensionsSmall, L2Small, L3Small>> networkSmall[LayerStacks];
 
 // Evaluation function file names
 
@@ -179,11 +179,8 @@ write_parameters(std::ostream& stream, NetSize netSize, const std::string& netDe
 
 void hint_common_parent_position(const Position& pos) {
 
-    int simpleEval = simple_eval(pos, pos.side_to_move());
-    if (std::abs(simpleEval) > 1050)
-        featureTransformerSmall->hint_common_access(pos);
-    else
-        featureTransformerBig->hint_common_access(pos);
+    //int simpleEval = simple_eval(pos, pos.side_to_move());
+    featureTransformerBig->hint_common_access(pos);
 }
 
 // Evaluation function. Perform differential calculation.
