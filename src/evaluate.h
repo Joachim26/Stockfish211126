@@ -40,7 +40,7 @@ Value evaluate(const Position& pos, int optimism);
 // for the build process (profile-build and fishtest) to work. Do not change the
 // name of the macro, as it is used in the Makefile.
 #define EvalFileDefaultNameBig "nn-9067e33176e8.nnue"
-#define EvalFileDefaultNameSmall "nn-baff1ede1f90.nnue"
+#define EvalFileDefaultNameSmall "nn-9067e33176e8.nnue"
 
 struct EvalFile {
     // UCI option name
