@@ -189,6 +189,13 @@ void NNUE::verify(const OptionsMap&                                        optio
 }
 }
 
+// SFnps Begin
+int Eval::materialBothSides(const Position& pos, Color c) {
+    return PawnValue * (pos.count<PAWN>(c) + pos.non_pawn_material(c))
+         + (pos.count<PAWN>(~c) + pos.non_pawn_material(~c));
+}
+// SFnps End
+
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
@@ -214,7 +221,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
         v = simpleEval;
     else
     {
-        bool smallNet = std::abs(simpleEval) > 1050;
+        bool smallNet = (materialBothSides(pos, pos.side_to_move()) < 20);  // std::abs(simpleEval) > 1050;
 
         int nnueComplexity;
 
