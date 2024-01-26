@@ -191,8 +191,7 @@ void NNUE::verify(const OptionsMap&                                        optio
 
 // SFnps Begin
 int Eval::materialBothSides(const Position& pos, Color c) {
-    return (pos.count<PAWN>(c) + pos.count<PAWN>(~c)) * PawnValue
-         + (pos.non_pawn_material(c) + pos.non_pawn_material(~c));
+    return PawnValue * pos.count<PAWN>() + pos.non_pawn_material();
 }
 // SFnps End
 
