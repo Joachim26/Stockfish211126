@@ -191,8 +191,8 @@ void NNUE::verify(const OptionsMap&                                        optio
 
 // SFnps Begin
 int Eval::materialBothSides(const Position& pos, Color c) {
-    return PawnValue * (pos.count<PAWN>(c) + pos.non_pawn_material(c))
-         + (pos.count<PAWN>(~c) + pos.non_pawn_material(~c));
+    return (pos.count<PAWN>(c) + pos.count<PAWN>(~c)) * PawnValue
+         + (pos.non_pawn_material(c) + pos.non_pawn_material(~c));
 }
 // SFnps End
 
@@ -221,7 +221,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
         v = simpleEval;
     else
     {
-        bool smallNet = (materialBothSides(pos, pos.side_to_move()) < 20);  // std::abs(simpleEval) > 1050;
+        bool smallNet = (materialBothSides(pos, pos.side_to_move()) < 2000);  // std::abs(simpleEval) > 1050;
 
         int nnueComplexity;
 
