@@ -220,7 +220,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
         v = simpleEval;
     else
     {
-        bool smallNet = (materialBothSides(pos, pos.side_to_move()) < 2000);  // std::abs(simpleEval) > 1050;
+        bool smallNet = (materialBothSides(pos, pos.side_to_move()) < 4000);  // std::abs(simpleEval) > 1050;
 
         int nnueComplexity;
 
