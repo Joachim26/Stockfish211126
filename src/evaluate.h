@@ -54,6 +54,9 @@ struct EvalFile {
     std::string netDescription;
 };
 
+extern long long tmOptTime;
+extern long long MaxMatSmallNet;
+
 namespace NNUE {
 
 enum NetSize : int;

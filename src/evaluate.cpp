@@ -66,6 +66,9 @@ namespace Stockfish {
 
 namespace Eval {
 
+long long tmOptTime;
+long long MaxMatSmallNet;
+
 int NNUE::RandomEval = 0;
 int NNUE::WaitMs = 0;
 
@@ -220,7 +223,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
         v = simpleEval;
     else
     {
-        bool smallNet = (materialBothSides(pos) < 9900);  // std::abs(simpleEval) > 1050;
+        bool smallNet = (materialBothSides(pos) < Stockfish::Eval::MaxMatSmallNet);
 
         int nnueComplexity;
 
