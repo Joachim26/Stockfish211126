@@ -30,6 +30,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include <random>
+#include <chrono>
+
 #include "incbin/incbin.h"
 #include "misc.h"
 #include "nnue/evaluate_nnue.h"
@@ -63,6 +66,11 @@ namespace Stockfish {
 
 namespace Eval {
 
+long long tmOptTime;
+long long MaxMatSmallNet;
+
+int NNUE::RandomEval = 0;
+int NNUE::WaitMs = 0;
 
 // Tries to load a NNUE network at startup time, or when the engine
 // receives a UCI command "setoption name EvalFile value nn-[a-z0-9]{12}.nnue"
@@ -184,6 +192,12 @@ void NNUE::verify(const OptionsMap&                                        optio
 }
 }
 
+// SFnps Begin
+int Eval::materialBothSides(const Position& pos) {
+    return PawnValue * pos.count<PAWN>() + pos.non_pawn_material();
+}
+// SFnps End
+
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
@@ -200,7 +214,8 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = std::abs(simpleEval) > 1050;
+    //bool smallNet   = std::abs(simpleEval) > 1050;
+    bool smallNet = (materialBothSides(pos) < Stockfish::Eval::MaxMatSmallNet);
 
     int nnueComplexity;
 
@@ -217,6 +232,24 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     // Damp down the evaluation linearly when shuffling
     int shuffling = pos.rule50_count();
     v             = v * (200 - shuffling) / 214;
+
+    // SFnps Begin //
+    if((NNUE::RandomEval) || (NNUE::WaitMs))
+    {
+      // waitms millisecs
+      std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::WaitMs));
+
+      // RandomEval
+      static thread_local std::mt19937_64 rng = [](){return std::mt19937_64(std::time(0));}();
+      std::normal_distribution<float> d(0.0, PawnValue);
+      float r = d(rng);
+      r = std::clamp<float>(r, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+      v = (NNUE::RandomEval * Value(r) + (100 - NNUE::RandomEval) * v) / 100;
+    }
+    // SFnps End //
+
+
+
 
     // Guarantee evaluation does not hit the tablebase range
     v = std::clamp(int(v), VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);

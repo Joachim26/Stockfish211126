@@ -179,8 +179,8 @@ write_parameters(std::ostream& stream, NetSize netSize, const std::string& netDe
 
 void hint_common_parent_position(const Position& pos) {
 
-    int simpleEval = simple_eval(pos, pos.side_to_move());
-    if (std::abs(simpleEval) > 1050)
+    // int simpleEval = simple_eval(pos, pos.side_to_move());
+    if (materialBothSides(pos) < Stockfish::Eval::MaxMatSmallNet)
         featureTransformerSmall->hint_common_access(pos);
     else
         featureTransformerBig->hint_common_access(pos);
