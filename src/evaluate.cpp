@@ -241,7 +241,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
 
 
     // Guarantee evaluation does not hit the tablebase range
-    v = std::clamp(int(v), VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+    v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 
     return v;
 }
