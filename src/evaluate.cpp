@@ -67,7 +67,8 @@ namespace Stockfish {
 namespace Eval {
 
 long long tmOptTime;
-long long MaxMatSmallNet;
+long long maxMatSmallNet;
+bool smallNetOn;
 
 int NNUE::RandomEval = 0;
 int NNUE::WaitMs = 0;
@@ -190,14 +191,12 @@ void NNUE::verify(const OptionsMap&                                        optio
         sync_cout << "info string NNUE evaluation using " << user_eval_file << sync_endl;
     }
 }
-}
-
 // SFnps Begin
-int Eval::materialBothSides(const Position& pos) {
+    int materialBothSides(const Position& pos) {
     return PawnValue * pos.count<PAWN>() + pos.non_pawn_material();
 }
 // SFnps End
-
+}
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
@@ -214,8 +213,8 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    //bool smallNet   = std::abs(simpleEval) > 1050;
-    bool smallNet = (materialBothSides(pos) < Stockfish::Eval::MaxMatSmallNet);
+   
+    bool smallNet = Eval::smallNetOn;
 
     int nnueComplexity;
 

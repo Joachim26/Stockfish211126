@@ -148,9 +148,13 @@ void Search::Worker::start_searching() {
     tt.new_search();
 
     //SFnps Begin
-    Stockfish::Eval::tmOptTime = main_manager()->tm.optimum();
-    Stockfish::Eval::MaxMatSmallNet = 9900 - Stockfish::Eval::tmOptTime;
-    std::cout << "SSS" << Stockfish::Eval::MaxMatSmallNet << "SSS "; 
+    namespace SE = Stockfish::Eval;
+    
+    SE::tmOptTime = main_manager()->tm.optimum();
+    SE::maxMatSmallNet = 10000;
+    SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    
+    std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
 
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
     if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);

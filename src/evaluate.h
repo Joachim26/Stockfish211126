@@ -55,7 +55,8 @@ struct EvalFile {
 };
 
 extern long long tmOptTime;
-extern long long MaxMatSmallNet;
+extern long long maxMatSmallNet;
+extern bool smallNetOn;
 
 namespace NNUE {
 
