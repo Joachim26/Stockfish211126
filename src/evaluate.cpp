@@ -66,6 +66,10 @@ namespace Stockfish {
 
 namespace Eval {
 
+long long tmOptTime;
+long long maxMatSmallNet;
+bool smallNetOn;
+
 int NNUE::RandomEval = 0;
 int NNUE::WaitMs = 0;
 
@@ -187,6 +191,11 @@ void NNUE::verify(const OptionsMap&                                        optio
         sync_cout << "info string NNUE evaluation using " << user_eval_file << sync_endl;
     }
 }
+// SFnps Begin
+    int materialBothSides(const Position& pos) {
+    return PawnValue * pos.count<PAWN>() + pos.non_pawn_material();
+}
+// SFnps End
 }
 
 // Returns a static, purely materialistic evaluation of the position from
@@ -205,8 +214,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = std::abs(simpleEval) > 2 * PawnValue;
-
+    bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > 4 * PawnValue));
     int nnueComplexity;
 
     Value nnue = smallNet ? NNUE::evaluate<NNUE::Small>(pos, true, &nnueComplexity)

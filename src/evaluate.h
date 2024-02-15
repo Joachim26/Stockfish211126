@@ -34,6 +34,7 @@ namespace Eval {
 std::string trace(Position& pos);
 
 int   simple_eval(const Position& pos, Color c);
+int   materialBothSides(const Position& pos);
 Value evaluate(const Position& pos, int optimism);
 
 // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
@@ -52,6 +53,10 @@ struct EvalFile {
     // Net description extracted from the net file
     std::string netDescription;
 };
+
+extern long long tmOptTime;
+extern long long maxMatSmallNet;
+extern bool smallNetOn;
 
 namespace NNUE {
 

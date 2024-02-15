@@ -24,6 +24,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <utility>
@@ -148,6 +149,14 @@ void Search::Worker::start_searching() {
     tt.new_search();
 
     //SFnps Begin
+    namespace SE = Stockfish::Eval;
+    
+    SE::tmOptTime = main_manager()->tm.optimum();
+    SE::maxMatSmallNet = 10000;
+    SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    
+    std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
+ 
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
     if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
     //SFnps End
