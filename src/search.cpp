@@ -152,10 +152,11 @@ void Search::Worker::start_searching() {
     //SFnps Begin
     namespace SE = Stockfish::Eval;
     
-    SE::tmOptTime = main_manager()->tm.optimum();
-    SE::maxMatSmallNet = 10000;
-    SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
-    
+    //SE::tmOptTime = main_manager()->tm.optimum();
+    //SE::maxMatSmallNet = 10000;
+    //SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    SE::smallNetOn = false;
+
     std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
  
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
@@ -480,6 +481,8 @@ void Search::Worker::iterative_deepening() {
 
         mainThread->iterValue[iterIdx] = bestValue;
         iterIdx                        = (iterIdx + 1) & 3;
+
+        if (rootDepth == 5) Stockfish::Eval::smallNetOn = true;
     }
 
     if (!mainThread)
