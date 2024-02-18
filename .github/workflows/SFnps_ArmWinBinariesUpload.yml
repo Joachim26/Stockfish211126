@@ -59,7 +59,7 @@ jobs:
             cd ../libs/arm64-v8a
             cp Stockfish ../../SFnps_armv8
            
-      - uses: xresloader/upload-to-github-release@v1
+      - uses: xresloader/upload-to-github-release@v1.5.0
         if: ${{ matrix.config.run_armv8_tests }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -83,7 +83,7 @@ jobs:
           make strip ARCH=x86-64-modern COMP=$COMP
           cp stockfish.exe ../SFnps_modern.exe
         
-      - uses: xresloader/upload-to-github-release@v1
+      - uses: xresloader/upload-to-github-release@v1.5.0
         if: ${{ matrix.config.run_win11_tests }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
