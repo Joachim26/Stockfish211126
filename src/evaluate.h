@@ -39,7 +39,7 @@ Value evaluate(const Position& pos, int optimism);
 // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
 // for the build process (profile-build and fishtest) to work. Do not change the
 // name of the macro, as it is used in the Makefile.
-#define EvalFileDefaultNameBig "nn-b1a57edbea57.nnue"
+#define EvalFileDefaultNameBig "nn-a3d1bfca1672.nnue"
 #define EvalFileDefaultNameSmall "nn-baff1ede1f90.nnue"
 
 struct EvalFile {
@@ -56,6 +56,9 @@ struct EvalFile {
 namespace NNUE {
 
 enum NetSize : int;
+extern int RandomEval;
+extern int WaitMs;
+
 
 using EvalFiles = std::unordered_map<Eval::NNUE::NetSize, EvalFile>;
 
