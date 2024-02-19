@@ -482,7 +482,8 @@ void Search::Worker::iterative_deepening() {
         mainThread->iterValue[iterIdx] = bestValue;
         iterIdx                        = (iterIdx + 1) & 3;
 
-        if (rootDepth == 5) Stockfish::Eval::smallNetOn = true;
+        if (rootDepth == Stockfish::Eval::depthThreshold) 
+            Stockfish::Eval::smallNetOn = true;
     }
 
     if (!mainThread)
