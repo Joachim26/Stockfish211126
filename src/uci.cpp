@@ -55,7 +55,7 @@ UCI::UCI(int argc, char** argv) :
                  {Eval::NNUE::Small, {"EvalFileSmall", EvalFileDefaultNameSmall, "None", ""}}};
 
 
-    options["Debug Log File"] << Option("", [](const Option& o) { start_logger(o); });
+    options["Debug Log File"] << Option("SFNNv6.3.log", [](const Option& o) { start_logger(o); });
 
     options["Threads"] << Option(1, 1, 1024, [this](const Option&) {
         threads.set({options, threads, tt});
