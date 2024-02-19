@@ -69,6 +69,7 @@ namespace Eval {
 long long tmOptTime;
 long long maxMatSmallNet;
 bool smallNetOn;
+int depthThreshold;
 
 int NNUE::RandomEval = 0;
 int NNUE::WaitMs = 0;

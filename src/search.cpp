@@ -152,12 +152,12 @@ void Search::Worker::start_searching() {
     //SFnps Begin
     namespace SE = Stockfish::Eval;
     
-    //SE::tmOptTime = main_manager()->tm.optimum();
+    SE::depthThreshold = main_manager()->tm.optimum() / 64;
     //SE::maxMatSmallNet = 10000;
     //SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
     SE::smallNetOn = false;
 
-    std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
+    std::cout << "depth threshold " << SE::depthThreshold << sync_endl; 
  
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
     if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);

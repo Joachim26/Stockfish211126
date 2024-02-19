@@ -57,6 +57,7 @@ struct EvalFile {
 extern long long tmOptTime;
 extern long long maxMatSmallNet;
 extern bool smallNetOn;
+extern int depthThreshold;
 
 namespace NNUE {
 
