@@ -184,11 +184,6 @@ std::string engine_info(bool to_uci) {
     return ss.str();
 }
 
-    ss << (to_uci ? "\nid author " : " by ") << "the Stockfish developers (see AUTHORS file)";
-
-    return ss.str();
-}
-
 
 // Returns a string trying to describe the compiler we use
 std::string compiler_info() {
