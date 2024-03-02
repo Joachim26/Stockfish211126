@@ -43,7 +43,7 @@ Value evaluate(const Position& pos, int optimism);
 #define EvalFileDefaultNameBig "nn-a3d1bfca1672.nnue"
 #define EvalFileDefaultNameSmall "nn-9067e33176e8.nnue"
 
-struct EvalFile {
+struct  EvalFile {
     // UCI option name
     std::string optionName;
     // Default net name, will use one of the macros above
