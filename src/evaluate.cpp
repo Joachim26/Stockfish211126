@@ -208,11 +208,15 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
+
+    //bool smallNet   = std::abs(simpleEval) > 1050;
     bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > 4 * PawnValue));
+    bool psqtOnly   = std::abs(simpleEval) > 2500;
+
     int nnueComplexity;
 
-    Value nnue = smallNet ? NNUE::evaluate<NNUE::Small>(pos, true, &nnueComplexity)
-                          : NNUE::evaluate<NNUE::Big>(pos, true, &nnueComplexity);
+    Value nnue = smallNet ? NNUE::evaluate<NNUE::Small>(pos, true, &nnueComplexity, psqtOnly)
+                          : NNUE::evaluate<NNUE::Big>(pos, true, &nnueComplexity, false);
 
     // Blend optimism and eval with nnue complexity and material imbalance
     optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 512;
