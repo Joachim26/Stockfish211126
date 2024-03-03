@@ -148,6 +148,19 @@ void Search::Worker::start_searching() {
     main_manager()->tm.init(limits, rootPos.side_to_move(), rootPos.game_ply(), options);
     tt.new_search();
 
+    //SFnps Begin
+    namespace SE = Stockfish::Eval;
+    
+    SE::tmOptTime = main_manager()->tm.optimum();
+    SE::maxMatSmallNet = 10000;
+    SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    
+    std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
+
+    if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
+    if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
+    //SFnps End
+
     if (rootMoves.empty())
     {
         rootMoves.emplace_back(Move::none());

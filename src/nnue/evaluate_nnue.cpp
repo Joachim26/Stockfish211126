@@ -180,8 +180,9 @@ write_parameters(std::ostream& stream, NetSize netSize, const std::string& netDe
 void hint_common_parent_position(const Position& pos) {
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
-    if (simpleEvalAbs > 1050)
-        featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > 2500);
+    //if (simpleEvalAbs > 1050)
+    if (Stockfish::Eval::smallNetOn)
+      featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > 2500);
     else
         featureTransformerBig->hint_common_access(pos, false);
 }
