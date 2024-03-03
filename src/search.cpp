@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <cstdint>
 #include <initializer_list>
 #include <iostream>
 #include <utility>
@@ -147,6 +148,20 @@ void Search::Worker::start_searching() {
 
     main_manager()->tm.init(limits, rootPos.side_to_move(), rootPos.game_ply(), options);
     tt.new_search();
+
+    //SFnps Begin
+    namespace SE = Stockfish::Eval;
+    
+    SE::depthThreshold = main_manager()->tm.optimum() / 64;
+    //SE::maxMatSmallNet = 10000;
+    //SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    SE::smallNetOn = false;
+
+    std::cout << "depth threshold " << SE::depthThreshold << sync_endl; 
+ 
+    if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
+    if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
+    //SFnps End
 
     if (rootMoves.empty())
     {
@@ -466,6 +481,9 @@ void Search::Worker::iterative_deepening() {
 
         mainThread->iterValue[iterIdx] = bestValue;
         iterIdx                        = (iterIdx + 1) & 3;
+
+        if (rootDepth == Stockfish::Eval::depthThreshold) 
+            Stockfish::Eval::smallNetOn = true;
     }
 
     if (!mainThread)

@@ -34,13 +34,14 @@ namespace Eval {
 std::string trace(Position& pos);
 
 int   simple_eval(const Position& pos, Color c);
+int   materialBothSides(const Position& pos);
 Value evaluate(const Position& pos, int optimism);
 
 // The default net name MUST follow the format nn-[SHA256 first 12 digits].nnue
 // for the build process (profile-build and fishtest) to work. Do not change the
 // name of the macro, as it is used in the Makefile.
-#define EvalFileDefaultNameBig "nn-b1a57edbea57.nnue"
-#define EvalFileDefaultNameSmall "nn-baff1ede1f90.nnue"
+#define EvalFileDefaultNameBig "nn-a3d1bfca1672.nnue"
+#define EvalFileDefaultNameSmall "nn-9067e33176e8.nnue"
 
 struct EvalFile {
     // UCI option name
@@ -53,9 +54,17 @@ struct EvalFile {
     std::string netDescription;
 };
 
+extern long long tmOptTime;
+extern long long maxMatSmallNet;
+extern bool smallNetOn;
+extern int depthThreshold;
+
 namespace NNUE {
 
 enum NetSize : int;
+extern int RandomEval;
+extern int WaitMs;
+
 
 using EvalFiles = std::unordered_map<Eval::NNUE::NetSize, EvalFile>;
 

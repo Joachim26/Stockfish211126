@@ -55,7 +55,7 @@ UCI::UCI(int argc, char** argv) :
                  {Eval::NNUE::Small, {"EvalFileSmall", EvalFileDefaultNameSmall, "None", ""}}};
 
 
-    options["Debug Log File"] << Option("", [](const Option& o) { start_logger(o); });
+    options["Debug Log File"] << Option("./SFNNv6.3.log", [](const Option& o) { start_logger(o); });
 
     options["Threads"] << Option(1, 1, 1024, [this](const Option&) {
         threads.set({options, threads, tt});
@@ -66,11 +66,17 @@ UCI::UCI(int argc, char** argv) :
         tt.resize(o, options["Threads"]);
     });
 
+    options["Wait ms"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; });
+    options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; });
+    options["Search Nodes"] << Option(0, 0, 1000000);
+    options["Search Depth"] << Option(0, 0, 20);
+
     options["Clear Hash"] << Option([this](const Option&) { search_clear(); });
     options["Ponder"] << Option(false);
     options["MultiPV"] << Option(1, 1, MAX_MOVES);
     options["Skill Level"] << Option(20, 0, 20);
     options["Move Overhead"] << Option(10, 0, 5000);
+    options["Slow Mover"] << Option(100, 10, 1000);
     options["nodestime"] << Option(0, 0, 10000);
     options["UCI_Chess960"] << Option(false);
     options["UCI_LimitStrength"] << Option(false);
