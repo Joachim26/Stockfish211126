@@ -66,9 +66,9 @@ namespace Stockfish {
 
 namespace Eval {
 
-long long tmOptTime;
+long long tmOptTime = 0;
 long long maxMatSmallNet;
-bool smallNetOn;
+bool smallNetOn = false;
 
 int NNUE::RandomEval = 0;
 int NNUE::WaitMs = 0;
@@ -206,8 +206,8 @@ Value Eval::evaluate(const Position& pos, int optimism) {
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet = Eval::smallNetOn;
-    //bool smallNet   = std::abs(simpleEval) > 1050;
+    bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > 4 * PawnValue));
+    //bool smallNet = std::abs(simpleEval) > 1050;
     bool psqtOnly   = std::abs(simpleEval) > 2500;
 
     int nnueComplexity;

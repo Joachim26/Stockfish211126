@@ -152,10 +152,9 @@ void Search::Worker::start_searching() {
     namespace SE = Stockfish::Eval;
     
     SE::tmOptTime = main_manager()->tm.optimum();
-    SE::maxMatSmallNet = 10000;
-    SE::smallNetOn = (SE::materialBothSides(rootPos) < SE::maxMatSmallNet);
+    SE::smallNetOn = (SE::tmOptTime < 200);
     
-    std::cout << "SSS" << SE::materialBothSides(rootPos) << "SSS "; 
+    std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
 
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
     if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);

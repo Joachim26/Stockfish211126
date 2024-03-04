@@ -181,7 +181,8 @@ void hint_common_parent_position(const Position& pos) {
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
     //if (simpleEvalAbs > 1050)
-    if (Stockfish::Eval::smallNetOn)
+    //if (Stockfish::Eval::smallNetOn)
+    if (Stockfish::Eval::smallNetOn || (std::abs(simpleEvalAbs) > 4 * PawnValue))
       featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > 2500);
     else
         featureTransformerBig->hint_common_access(pos, false);
