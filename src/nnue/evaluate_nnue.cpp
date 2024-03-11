@@ -30,7 +30,6 @@
 #include <sstream>
 #include <string_view>
 #include <type_traits>
-#include <unordered_map>
 
 #include "../evaluate.h"
 #include "../misc.h"
@@ -180,8 +179,8 @@ write_parameters(std::ostream& stream, NetSize netSize, const std::string& netDe
 void hint_common_parent_position(const Position& pos) {
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
-    if (simpleEvalAbs > 1050)
-        featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > 2500);
+    if (simpleEvalAbs > Eval::SmallNetThreshold)
+        featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > Eval::PsqtOnlyThreshold);
     else
         featureTransformerBig->hint_common_access(pos, false);
 }
@@ -452,9 +451,9 @@ bool save_eval(std::ostream&      stream,
 }
 
 // Save eval, to a file given by its name
-bool save_eval(const std::optional<std::string>&                              filename,
-               NetSize                                                        netSize,
-               const std::unordered_map<Eval::NNUE::NetSize, Eval::EvalFile>& evalFiles) {
+bool save_eval(const std::optional<std::string>& filename,
+               NetSize                           netSize,
+               const EvalFiles&                  evalFiles) {
 
     std::string actualFilename;
     std::string msg;
