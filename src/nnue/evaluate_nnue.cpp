@@ -179,7 +179,7 @@ write_parameters(std::ostream& stream, NetSize netSize, const std::string& netDe
 void hint_common_parent_position(const Position& pos) {
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
-    if (simpleEvalAbs > Eval::SmallNetThreshold)
+    if (Stockfish::Eval::smallNetOn || (simpleEvalAbs > 4 * PawnValue))
         featureTransformerSmall->hint_common_access(pos, simpleEvalAbs > Eval::PsqtOnlyThreshold);
     else
         featureTransformerBig->hint_common_access(pos, false);
