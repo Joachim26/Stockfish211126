@@ -207,8 +207,7 @@ Value Eval::evaluate(const Position& pos, int optimism) {
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
     bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > 4 * PawnValue));
-    //bool smallNet = std::abs(simpleEval) > 1050;
-    bool psqtOnly   = std::abs(simpleEval) > 2500;
+    bool psqtOnly   = std::abs(simpleEval) > PsqtOnlyThreshold;
 
     int nnueComplexity;
 
