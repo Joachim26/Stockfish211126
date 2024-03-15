@@ -41,8 +41,8 @@ int Eval::simple_eval(const Position& pos, Color c) {
     return PawnValue * (pos.count<PAWN>(c) - pos.count<PAWN>(~c))
          + (pos.non_pawn_material(c) - pos.non_pawn_material(~c));
 }
-int NNUE::RandomEval = 0;
-int NNUE::WaitMs = 0;
+int Eval::NNUE::RandomEval = 0;
+int Eval::NNUE::WaitMs = 0;
 
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
