@@ -35,11 +35,13 @@ constexpr inline int SmallNetThreshold = 1136, PsqtOnlyThreshold = 2656;
 // for the build process (profile-build and fishtest) to work. Do not change the
 // name of the macro or the location where this macro is defined, as it is used
 // in the Makefile/Fishtest.
-#define EvalFileDefaultNameBig "nn-1ceb1ade0001.nnue"
-#define EvalFileDefaultNameSmall "nn-baff1ede1f90.nnue"
+#define EvalFileDefaultNameBig "nn-9067e33176e8.nnue"
+#define EvalFileDefaultNameSmall "nn-9067e33176e8.nnue"
 
 namespace NNUE {
 struct Networks;
+extern int RandomEval;
+extern int WaitMs;
 }
 
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
