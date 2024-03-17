@@ -45,6 +45,10 @@ extern int RandomEval;
 extern int WaitMs;
 }
 
+extern long long tmOptTime;
+extern bool smallNetOn;
+
+
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
 
 int   simple_eval(const Position& pos, Color c);
