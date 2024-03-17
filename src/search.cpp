@@ -152,6 +152,13 @@ void Search::Worker::start_searching() {
     tt.new_search();
 
     //SFnps Begin
+    namespace SE = Stockfish::Eval;
+    
+    SE::tmOptTime = main_manager()->tm.optimum();
+    SE::smallNetOn = (SE::tmOptTime < 1250);
+    
+    std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
+
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
     if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
     //SFnps End

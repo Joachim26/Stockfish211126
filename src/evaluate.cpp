@@ -35,7 +35,11 @@
 
 namespace Stockfish {
 int Eval::NNUE::RandomEval = 0;
-int Eval::NNUE::WaitMs = 0;  
+int Eval::NNUE::WaitMs = 0;
+
+long long Eval::tmOptTime = 0;
+bool Eval::smallNetOn = false;
+//long long maxMatSmallNet;
   
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
@@ -52,7 +56,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
+    //bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
+    bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > SmallNetThreshold));
     bool psqtOnly   = std::abs(simpleEval) > PsqtOnlyThreshold;
 
     int nnueComplexity;
