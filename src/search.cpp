@@ -154,7 +154,7 @@ void Search::Worker::start_searching() {
     namespace SE = Stockfish::Eval;
     
     SE::tmOptTime = main_manager()->tm.optimum();
-    SE::smallNetOn = (SE::tmOptTime < 200);
+    SE::smallNetOn = (SE::tmOptTime < 1250);
     
     std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
 
