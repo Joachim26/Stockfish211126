@@ -154,8 +154,9 @@ void Search::Worker::start_searching() {
     //SFnps Begin
     namespace SE = Stockfish::Eval;
     
+    int smallnetTH = int(options["Smallnet Threshold"]);
     SE::tmOptTime = main_manager()->tm.optimum();
-    SE::smallNetOn = (SE::tmOptTime < 1250);
+    SE::smallNetOn = (SE::tmOptTime < smallnetTH);
     
     std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
 
