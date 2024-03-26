@@ -67,7 +67,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
                           : networks.big.evaluate(pos, true, &nnueComplexity, false);
 
     if (!smallNet){
-        std::chrono::nanoseconds timespan(10000);
+        std::chrono::nanoseconds timespan(100000);
         std::this_thread::sleep_for(timespan);
     }
 
