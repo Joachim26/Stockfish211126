@@ -66,9 +66,10 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
     Value nnue = smallNet ? networks.small.evaluate(pos, true, &nnueComplexity, psqtOnly)
                           : networks.big.evaluate(pos, true, &nnueComplexity, false);
 
+    std::this_thread::sleep_for(std::chrono::microseconds(1 + NNUE::RandomEval));
     //if (!smallNet){
-        std::chrono::microseconds timespan(10);
-        std::this_thread::sleep_for(timespan);
+        //std::chrono::microseconds timespan(10);
+        //std::this_thread::sleep_for(timespan);
    // }
 
     const auto adjustEval = [&](int optDiv, int nnueDiv, int pawnCountConstant, int pawnCountMul,
