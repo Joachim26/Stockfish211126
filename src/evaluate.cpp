@@ -29,6 +29,7 @@
 #include "nnue/nnue_misc.h"
 #include <random>
 #include <chrono>
+#include <thread>
 #include "position.h"
 #include "types.h"
 #include "uci.h"
@@ -64,6 +65,11 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
 
     Value nnue = smallNet ? networks.small.evaluate(pos, true, &nnueComplexity, psqtOnly)
                           : networks.big.evaluate(pos, true, &nnueComplexity, false);
+
+    if (!smallNet){
+        std::chrono::nanoseconds timespan(10000);
+        std::this_thread::sleep_for(timespan);
+    }
 
     const auto adjustEval = [&](int optDiv, int nnueDiv, int pawnCountConstant, int pawnCountMul,
                                 int npmConstant, int evalDiv, int shufflingConstant,
