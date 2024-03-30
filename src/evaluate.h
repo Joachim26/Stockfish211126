@@ -35,8 +35,8 @@ constexpr inline int SmallNetThreshold = 4 * PawnValue, PsqtOnlyThreshold = 2500
 // for the build process (profile-build and fishtest) to work. Do not change the
 // name of the macro or the location where this macro is defined, as it is used
 // in the Makefile/Fishtest.
-#define EvalFileDefaultNameBig "nn-a3d1bfca1672.nnue"
-#define EvalFileDefaultNameSmall "nn-9067e33176e8.nnue"
+#define EvalFileDefaultNameBig "nn-1ceb1ade0001.nnue"
+#define EvalFileDefaultNameBig "nn-a70fe1969e12.nnue"
 
 namespace NNUE {
 struct Networks;
