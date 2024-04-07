@@ -91,7 +91,7 @@ UCI::UCI(int argc, char** argv) :
     options["SyzygyProbeDepth"] << Option(1, 1, 100);
     options["Syzygy50MoveRule"] << Option(true);
     options["SyzygyProbeLimit"] << Option(7, 0, 7);
-    options["EvalFile"] << Option(EvalFileDefaultNameBig, [this](const Option& o) {
+    options["EvalFileBig"] << Option(EvalFileDefaultNameBig, [this](const Option& o) {
         networks.big.load(cli.binaryDirectory, o);
     });
     options["EvalFileMedium"] << Option(EvalFileDefaultNameMedium, [this](const Option& o) {
@@ -101,7 +101,7 @@ UCI::UCI(int argc, char** argv) :
         networks.small.load(cli.binaryDirectory, o);
     });
 
-    networks.big.load(cli.binaryDirectory, options["EvalFile"]);
+    networks.big.load(cli.binaryDirectory, options["EvalFileBig"]);
     networks.medium.load(cli.binaryDirectory, options["EvalFileMedium"]);
     networks.small.load(cli.binaryDirectory, options["EvalFileSmall"]);
 
@@ -242,7 +242,8 @@ void UCI::go(Position& pos, std::istringstream& is, StateListPtr& states) {
 
     Search::LimitsType limits = parse_limits(pos, is);
 
-    networks.big.verify(options["EvalFile"]);
+    networks.big.verify(options["EvalFileBig"]);
+    networks.medium.verify(options["EvalFileMedium"]);
     networks.small.verify(options["EvalFileSmall"]);
 
     if (limits.perft)
@@ -308,7 +309,8 @@ void UCI::trace_eval(Position& pos) {
     Position     p;
     p.set(pos.fen(), options["UCI_Chess960"], &states->back());
 
-    networks.big.verify(options["EvalFile"]);
+    networks.big.verify(options["EvalFileBig"]);
+    networks.medium.verify(options["EvalFileMedium"]);
     networks.small.verify(options["EvalFileSmall"]);
 
 

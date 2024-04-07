@@ -978,6 +978,8 @@ endef
 net:
 	$(call netvariables, EvalFileDefaultNameBig)
 	$(call fetch_network)
+	$(call netvariables, EvalFileDefaultNameMedium)
+	$(call fetch_network)
 	$(call netvariables, EvalFileDefaultNameSmall)
 	$(call fetch_network)
 
