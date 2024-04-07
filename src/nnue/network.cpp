@@ -79,8 +79,8 @@ EmbeddedNNUE get_embedded(EmbeddedNNUEType type) {
         return EmbeddedNNUE(gEmbeddedNNUEBigData, gEmbeddedNNUEBigEnd, gEmbeddedNNUEBigSize);
     if (type == EmbeddedNNUEType::MEDIUM)
         return EmbeddedNNUE(gEmbeddedNNUEMediumData, gEmbeddedNNUEMediumEnd, gEmbeddedNNUEMediumSize);
-    //else
-    if (type == EmbeddedNNUEType::SMALL)
+    //if (type == EmbeddedNNUEType::SMALL)
+    else
         return EmbeddedNNUE(gEmbeddedNNUESmallData, gEmbeddedNNUESmallEnd, gEmbeddedNNUESmallSize);
 }
 
