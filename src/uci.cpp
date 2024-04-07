@@ -94,11 +94,15 @@ UCI::UCI(int argc, char** argv) :
     options["EvalFile"] << Option(EvalFileDefaultNameBig, [this](const Option& o) {
         networks.big.load(cli.binaryDirectory, o);
     });
+    options["EvalFileMedium"] << Option(EvalFileDefaultNameMedium, [this](const Option& o) {
+        networks.medium.load(cli.binaryDirectory, o);
+    });    
     options["EvalFileSmall"] << Option(EvalFileDefaultNameSmall, [this](const Option& o) {
         networks.small.load(cli.binaryDirectory, o);
     });
 
     networks.big.load(cli.binaryDirectory, options["EvalFile"]);
+    networks.medium.load(cli.binaryDirectory, options["EvalFileMedium"]);
     networks.small.load(cli.binaryDirectory, options["EvalFileSmall"]);
 
     threads.set({options, threads, tt, networks});
@@ -176,6 +180,7 @@ void UCI::loop() {
                 files[1].first = files[1].second;
 
             networks.big.save(files[0].first);
+            //networks.medium.save(files[1].first);
             networks.small.save(files[1].first);
         }
         else if (token == "--help" || token == "help" || token == "--license" || token == "license")
