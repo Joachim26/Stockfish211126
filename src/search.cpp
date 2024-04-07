@@ -154,6 +154,19 @@ void Search::Worker::start_searching() {
     main_manager()->tm.init(limits, rootPos.side_to_move(), rootPos.game_ply(), options);
     tt.new_search();
 
+    //SFnps Begin
+    namespace SE = Stockfish::Eval;
+    
+    int smallnetTH = int(options["Smallnet Threshold"]);
+    SE::tmOptTime = main_manager()->tm.optimum();
+    SE::smallNetOn = (SE::tmOptTime < smallnetTH);
+    
+    std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
+
+    if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
+    if (options["Search Depth"]) limits.depth = int(options["Search Depth"]);
+    //SFnps End
+
     if (rootMoves.empty())
     {
         rootMoves.emplace_back(Move::none());
