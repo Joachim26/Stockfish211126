@@ -55,6 +55,7 @@ namespace NN = Eval::NNUE;
 UCI::UCI(int argc, char** argv) :
     networks(NN::Networks(
       NN::NetworkBig({EvalFileDefaultNameBig, "None", ""}, NN::EmbeddedNNUEType::BIG),
+      NN::NetworkMedium({EvalFileDefaultNameMedium, "None", ""}, NN::EmbeddedNNUEType::MEDIUM),
       NN::NetworkSmall({EvalFileDefaultNameSmall, "None", ""}, NN::EmbeddedNNUEType::SMALL))),
     cli(argc, argv) {
 
