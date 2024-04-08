@@ -157,9 +157,9 @@ void Search::Worker::start_searching() {
     //SFnps Begin
     namespace SE = Stockfish::Eval;
     
-    int smallnetTH = int(options["Smallnet Threshold"]);
+    int mediumNetTH = int(options["Mediumnet Threshold"]);
     SE::tmOptTime = main_manager()->tm.optimum();
-    SE::smallNetOn = (SE::tmOptTime < smallnetTH);
+    SE::mediumNetOn = (SE::tmOptTime < mediumNetTH);
     
     std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
 

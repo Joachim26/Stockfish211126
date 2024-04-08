@@ -46,7 +46,7 @@ extern int WaitMs;
 }
 
 extern long long tmOptTime;
-extern bool smallNetOn;
+extern bool mediumNetOn;
 
 
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
