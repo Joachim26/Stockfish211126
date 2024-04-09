@@ -57,14 +57,23 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
     //bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
-    bool smallNet   = (Stockfish::Eval::mediumNetOn || (std::abs(simpleEval) > SmallNetThreshold));
+    bool smallNet   = (std::abs(simpleEval) > SmallNetThreshold);
     bool psqtOnly   = std::abs(simpleEval) > PsqtOnlyThreshold;
     int  nnueComplexity;
     int  v;
+    Value nnue;
 
-    Value nnue = smallNet ? networks.small.evaluate(pos, true, &nnueComplexity, psqtOnly)
-                          : networks.big.evaluate(pos, true, &nnueComplexity, false);
-
+    //Value nnue = smallNet ? networks.small.evaluate(pos, true, &nnueComplexity, psqtOnly)
+    //                      : networks.big.evaluate(pos, true, &nnueComplexity, false);
+    if (smallNet) 
+        nnue = networks.small.evaluate(pos, true, &nnueComplexity, psqtOnly); 
+    else {
+        if (Eval::mediumNetOn) 
+            nnue = networks.medium.evaluate(pos, true, &nnueComplexity, false);
+        else 
+            nnue = networks.big.evaluate(pos, true, &nnueComplexity, false);
+    }    
+    
     const auto adjustEval = [&](int optDiv, int nnueDiv, int pawnCountConstant, int pawnCountMul,
                                 int npmConstant, int evalDiv, int shufflingConstant,
                                 int shufflingDiv) {

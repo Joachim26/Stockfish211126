@@ -45,9 +45,11 @@ constexpr std::string_view PieceToChar(" PNBRQK  pnbrqk");
 void hint_common_parent_position(const Position& pos, const Networks& networks) {
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
-    if (Stockfish::Eval::mediumNetOn || (simpleEvalAbs > Eval::SmallNetThreshold))
+    if (simpleEvalAbs > Eval::SmallNetThreshold)
         networks.small.hint_common_access(pos, simpleEvalAbs > Eval::PsqtOnlyThreshold);
-    else
+    else if (Stockfish::Eval::mediumNetOn)
+        networks.medium.hint_common_access(pos, false);
+    else    
         networks.big.hint_common_access(pos, false);
 }
 
