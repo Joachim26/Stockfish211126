@@ -64,9 +64,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          overwrite: true
+          overwrite: false
           file: "SFnps_armv8" 
-          update_latest_release: true
+          update_latest_release: false
               
       - uses: actions/upload-artifact@v4
         if: ${{ matrix.config.run_armv8_tests }}
