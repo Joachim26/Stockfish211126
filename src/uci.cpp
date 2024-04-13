@@ -64,11 +64,18 @@ UCIEngine::UCIEngine(int argc, char** argv) :
 
     options["Hash"] << Option(16, 1, MaxHashMB, [this](const Option& o) { engine.set_tt_size(o); });
 
+    options["Wait ms"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; });
+    options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; });
+    options["Search Nodes"] << Option(0, 0, 1000000);
+    options["Search Depth"] << Option(0, 0, 20);
+    options["Mediumnet Threshold"] << Option(300, 0, 10000);
+
     options["Clear Hash"] << Option([this](const Option&) { engine.search_clear(); });
     options["Ponder"] << Option(false);
     options["MultiPV"] << Option(1, 1, MAX_MOVES);
     options["Skill Level"] << Option(20, 0, 20);
     options["Move Overhead"] << Option(10, 0, 5000);
+    options["Slow Mover"] << Option(100, 10, 1000);
     options["nodestime"] << Option(0, 0, 10000);
     options["UCI_Chess960"] << Option(false);
     options["UCI_LimitStrength"] << Option(false);
@@ -78,11 +85,15 @@ UCIEngine::UCIEngine(int argc, char** argv) :
     options["SyzygyProbeDepth"] << Option(1, 1, 100);
     options["Syzygy50MoveRule"] << Option(true);
     options["SyzygyProbeLimit"] << Option(7, 0, 7);
-    options["EvalFile"] << Option(EvalFileDefaultNameBig,
+    options["EvalFileBig"] << Option(EvalFileDefaultNameBig,
                                   [this](const Option& o) { engine.load_big_network(o); });
+    options["EvalFileMedium"] << Option(EvalFileDefaultNameMedium,
+                                  [this](const Option& o) { engine.load_medium_network(o); });  
     options["EvalFileSmall"] << Option(EvalFileDefaultNameSmall,
-                                       [this](const Option& o) { engine.load_small_network(o); });
-
+                                  [this](const Option& o) { engine.load_small_network(o); });
+    //networks.big.load(cli.binaryDirectory, options["EvalFileBig"]);
+    //networks.medium.load(cli.binaryDirectory, options["EvalFileMedium"]);
+    //networks.small.load(cli.binaryDirectory, options["EvalFileSmall"]);
 
     engine.set_on_iter([](const auto& i) { on_iter(i); });
     engine.set_on_update_no_moves([](const auto& i) { on_update_no_moves(i); });
@@ -160,6 +171,7 @@ void UCIEngine::loop() {
                 files[1].first = files[1].second;
 
             engine.save_network(files);
+
         }
         else if (token == "--help" || token == "help" || token == "--license" || token == "license")
             sync_cout
