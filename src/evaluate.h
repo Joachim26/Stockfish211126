@@ -40,6 +40,8 @@ constexpr inline int SmallNetThreshold = 1274, PsqtOnlyThreshold = 2389;
 
 namespace NNUE {
 struct Networks;
+extern int RandomEval;
+extern int WaitMs;
 }
 
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
