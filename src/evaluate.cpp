@@ -25,15 +25,22 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-
 #include "nnue/network.h"
 #include "nnue/nnue_misc.h"
+#include <random>
+#include <chrono>
 #include "position.h"
 #include "types.h"
 #include "uci.h"
 
 namespace Stockfish {
+int Eval::NNUE::RandomEval = 0;
+int Eval::NNUE::WaitMs = 0;
 
+long long Eval::tmOptTime = 0;
+bool Eval::smallNetOn = false;
+//long long maxMatSmallNet;
+  
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
@@ -42,7 +49,6 @@ int Eval::simple_eval(const Position& pos, Color c) {
          + (pos.non_pawn_material(c) - pos.non_pawn_material(~c));
 }
 
-
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
 Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, int optimism) {
@@ -50,7 +56,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
+    //bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
+    bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > SmallNetThreshold));
     bool psqtOnly   = std::abs(simpleEval) > PsqtOnlyThreshold;
     int  nnueComplexity;
     int  v;
@@ -81,6 +88,24 @@ Value Eval::evaluate(const Eval::NNUE::Networks& networks, const Position& pos, 
         adjustEval(517, 32857, 908, 7, 155, 1019, 224, 238);
     else
         adjustEval(499, 32793, 903, 9, 147, 1067, 208, 211);
+
+    // SFnps Begin //
+    if((NNUE::RandomEval) || (NNUE::WaitMs))
+    {
+      // waitms millisecs
+      std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::WaitMs));
+
+      // RandomEval
+      static thread_local std::mt19937_64 rng = [](){return std::mt19937_64(std::time(0));}();
+      std::normal_distribution<float> d(0.0, PawnValue);
+      float r = d(rng);
+      r = std::clamp<float>(r, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+      v = (NNUE::RandomEval * Value(r) + (100 - NNUE::RandomEval) * v) / 100;
+    }
+    // SFnps End //
+
+
+
 
     // Guarantee evaluation does not hit the tablebase range
     v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
