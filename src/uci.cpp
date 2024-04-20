@@ -68,7 +68,7 @@ UCIEngine::UCIEngine(int argc, char** argv) :
     options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; });
     options["Search Nodes"] << Option(0, 0, 1000000);
     options["Search Depth"] << Option(0, 0, 20);
-    options["Mediumnet Threshold"] << Option(1750, 0, 10000);
+    options["Mediumnet Threshold"] << Option(1200, 0, 10000);
 
     options["Clear Hash"] << Option([this](const Option&) { engine.search_clear(); });
     options["Ponder"] << Option(false);
