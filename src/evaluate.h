@@ -41,6 +41,7 @@ constexpr inline int SmallNetThreshold = 1274, PsqtOnlyThreshold = 2389;
 
 namespace NNUE {
 struct Networks;
+struct AccumulatorCaches;
 extern int RandomEval;
 extern int WaitMs;
 }
@@ -52,9 +53,10 @@ extern bool mediumNetOn;
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
 
 int   simple_eval(const Position& pos, Color c);
-Value evaluate(const NNUE::Networks& networks, const Position& pos, int optimism);
-
-
+Value evaluate(const NNUE::Networks&          networks,
+               const Position&                pos,
+               Eval::NNUE::AccumulatorCaches& caches,
+               int                            optimism);
 }  // namespace Eval
 
 }  // namespace Stockfish
