@@ -74,7 +74,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         nnue = networks.small.evaluate(pos, nullptr, true, &nnueComplexity, psqtOnly); 
     else {
         if (Eval::mediumNetOn) 
-            nnue = networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity, false); //funktioniert Cache?
+            nnue = networks.medium.evaluate(pos, nullptr, true, &nnueComplexity, false); //funktioniert Cache? Nö &caches.medium
         else 
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity, false);
     }    

@@ -50,7 +50,7 @@ void hint_common_parent_position(const Position&    pos,
     if (simpleEvalAbs > Eval::SmallNetThreshold)
         networks.small.hint_common_access(pos, nullptr, simpleEvalAbs > Eval::PsqtOnlyThreshold);
     else if (Stockfish::Eval::mediumNetOn)
-        networks.medium.hint_common_access(pos, &caches.medium, false);  //funktioniert Cache?
+        networks.medium.hint_common_access(pos, nullptr, false);  //funktioniert Cache? Nein &caches.medium,
     else    
         networks.big.hint_common_access(pos, &caches.big, false);
 }
