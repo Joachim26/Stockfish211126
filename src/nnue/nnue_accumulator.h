@@ -95,6 +95,7 @@ struct AccumulatorCaches {
     template<typename Networks>
     void clear(const Networks& networks) {
         big.clear(networks.big);
+        medium.clear(networks.medium);
         small.clear(networks.small);
     }
 
