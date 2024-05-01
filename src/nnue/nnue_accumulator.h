@@ -98,7 +98,11 @@ struct AccumulatorCaches {
         small.clear(networks.small);
     }
 
+    // When adding a new cache for a network, i.e. the smallnet
+    // the appropriate condition must be added to FeatureTransformer::update_accumulator_refresh.
+    //Cache<TransformedFeatureDimensionsMedium> medium;
     Cache<TransformedFeatureDimensionsBig>   big;
+    Cache<TransformedFeatureDimensionsMedium> medium;
     Cache<TransformedFeatureDimensionsSmall> small;
 };
 
