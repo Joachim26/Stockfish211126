@@ -161,11 +161,11 @@ std::string engine_info(bool to_uci) {
     std::stringstream ss;
   
     if constexpr (version != "dev")  
-        ss << "SFNNv6_" << version << std::setfill('0');
+        ss << "SFNNv6.4_" << version << std::setfill('0');
 
     if constexpr (version == "dev")
     {
-        ss << "SFNNv6_" << std::setfill('0');
+        ss << "SFNNv6.4_" << std::setfill('0');
 #ifdef GIT_DATE
         ss << stringify(GIT_DATE);
 #else
