@@ -48,9 +48,9 @@ void hint_common_parent_position(const Position&    pos,
 
     int simpleEvalAbs = std::abs(simple_eval(pos, pos.side_to_move()));
     if (simpleEvalAbs > Eval::SmallNetThreshold)
-        networks.small.hint_common_access(pos, nullptr, simpleEvalAbs > Eval::PsqtOnlyThreshold);
+        networks.small.hint_common_access(pos, &caches.small, simpleEvalAbs > Eval::PsqtOnlyThreshold);
     else if (Stockfish::Eval::mediumNetOn)
-        networks.medium.hint_common_access(pos, nullptr, false);
+        networks.medium.hint_common_access(pos, &caches.medium, false);
     else    
         networks.big.hint_common_access(pos, &caches.big, false);
 }
