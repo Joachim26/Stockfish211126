@@ -68,6 +68,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     int  nnueComplexity;
     int  v;
 
+    Value nnue;
+  
     if (smallNet) 
         nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity, psqtOnly); 
     else {
