@@ -62,21 +62,18 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    //bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
     bool smallNet   = (Stockfish::Eval::smallNetOn || (std::abs(simpleEval) > SmallNetThreshold));
-    bool psqtOnly   = std::abs(simpleEval) > PsqtOnlyThreshold;
+   
     int  nnueComplexity;
     int  v;
 
-    Value nnue = smallNet
-                 ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity, psqtOnly)
-                 : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity, false);
+    Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity)
+                          : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
 
-    const auto adjustEval = [&](int optDiv, int nnueDiv, int pawnCountConstant, int pawnCountMul,
-                                int npmConstant, int evalDiv, int shufflingConstant,
-                                int shufflingDiv) {
+    const auto adjustEval = [&](int nnueDiv, int pawnCountConstant, int pawnCountMul,
+                                int npmConstant, int evalDiv, int shufflingConstant) {
         // Blend optimism and eval with nnue complexity and material imbalance
-        optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / optDiv;
+        optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 584;
         nnue -= nnue * (nnueComplexity * 5 / 3) / nnueDiv;
 
         int npm = pos.non_pawn_material() / 64;
@@ -86,15 +83,13 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
         // Damp down the evaluation linearly when shuffling
         int shuffling = pos.rule50_count();
-        v             = v * (shufflingConstant - shuffling) / shufflingDiv;
+        v             = v * (shufflingConstant - shuffling) / 207;
     };
 
     if (!smallNet)
-        adjustEval(524, 32395, 942, 11, 139, 1058, 178, 204);
-    else if (psqtOnly)
-        adjustEval(517, 32857, 908, 7, 155, 1006, 224, 238);
+        adjustEval(32395, 942, 11, 139, 1058, 178);
     else
-        adjustEval(515, 32793, 944, 9, 140, 1067, 206, 206);
+        adjustEval(32793, 944, 9, 140, 1067, 206);
 
     // SFnps Begin //
     if((NNUE::RandomEval) || (NNUE::WaitMs))
