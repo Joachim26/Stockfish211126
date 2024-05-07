@@ -89,7 +89,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     if (!smallNet)
         adjustEval(32395, 942, 11, 139, 1058, 178);
     else
-        adjustEval(32793, 944, 9, 140, 1067, 206);
+        adjustEval(32450, 943, 11, 139, 1061, 183);
+        //adjustEval(32793, 944, 9, 140, 1067, 206);
 
     // SFnps Begin //
     if((NNUE::RandomEval) || (NNUE::WaitMs))
