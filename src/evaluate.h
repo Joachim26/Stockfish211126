@@ -41,6 +41,8 @@ constexpr inline int SmallNetThreshold = 1274;
 namespace NNUE {
 struct Networks;
 struct AccumulatorCaches;
+extern int RandomEval;
+extern int WaitMs;
 }
 
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);

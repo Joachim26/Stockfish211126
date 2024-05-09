@@ -1,8 +1,3 @@
-# Updated Makefile for StockfishNPS building on Termux
-# works for clang, gcc, ndk, armv8, armv7, and pgo.
-# 
-#
-#
 # Stockfish, a UCI chess playing engine derived from Glaurung 2.1
 # Copyright (C) 2004-2024 The Stockfish developers (see AUTHORS file)
 #
@@ -60,7 +55,7 @@ PGOBENCH = $(WINE_PATH) ./$(EXE) bench
 SRCS = benchmark.cpp bitboard.cpp evaluate.cpp main.cpp \
 	misc.cpp movegen.cpp movepick.cpp position.cpp \
 	search.cpp thread.cpp timeman.cpp tt.cpp uci.cpp ucioption.cpp tune.cpp syzygy/tbprobe.cpp \
-	nnue/nnue_misc.cpp nnue/features/half_ka_v2_hm.cpp nnue/network.cpp engine.cpp score.cpp
+	nnue/nnue_misc.cpp nnue/features/half_ka_v2_hm.cpp nnue/network.cpp
 
 HEADERS = benchmark.h bitboard.h evaluate.h misc.h movegen.h movepick.h \
 		nnue/nnue_misc.h nnue/features/half_ka_v2_hm.h nnue/layers/affine_transform.h \
@@ -68,7 +63,7 @@ HEADERS = benchmark.h bitboard.h evaluate.h misc.h movegen.h movepick.h \
 		nnue/layers/sqr_clipped_relu.h nnue/nnue_accumulator.h nnue/nnue_architecture.h \
 		nnue/nnue_common.h nnue/nnue_feature_transformer.h position.h \
 		search.h syzygy/tbprobe.h thread.h thread_win32_osx.h timeman.h \
-		tt.h tune.h types.h uci.h ucioption.h perft.h nnue/network.h engine.h score.h
+		tt.h tune.h types.h uci.h ucioption.h perft.h nnue/network.cpp
 
 OBJS = $(notdir $(SRCS:.cpp=.o))
 
@@ -392,7 +387,7 @@ ifeq ($(MAKELEVEL),0)
        export ENV_LDFLAGS := $(LDFLAGS)
 endif
 
-CXXFLAGS = $(ENV_CXXFLAGS) -Wall -Wcast-qual -fno-exceptions -std=c++17 -DNNUE_EMBEDDING_OFF $(EXTRACXXFLAGS)
+CXXFLAGS = $(ENV_CXXFLAGS) -Wall -Wcast-qual -fno-exceptions -std=c++17 $(EXTRACXXFLAGS)
 DEPENDFLAGS = $(ENV_DEPENDFLAGS) -std=c++17
 LDFLAGS = $(ENV_LDFLAGS) $(EXTRALDFLAGS)
 
@@ -403,12 +398,12 @@ endif
 ifeq ($(COMP),gcc)
 	comp=gcc
 	CXX=g++
-	CXXFLAGS += -pedantic -Wextra -Wshadow -Wmissing-declarations -flax-vector-conversions
+	CXXFLAGS += -pedantic -Wextra -Wshadow -Wmissing-declarations
 
 	ifeq ($(arch),$(filter $(arch),armv7 armv8 riscv64))
 		ifeq ($(OS),Android)
-			CXXFLAGS +=
-			LDFLAGS += -lgcov -static-libstdc++
+			CXXFLAGS += -m$(bits)
+			LDFLAGS += -m$(bits)
 		endif
 		ifeq ($(ARCH),riscv64)
 			CXXFLAGS += -latomic
@@ -480,7 +475,7 @@ ifeq ($(COMP),clang)
 	ifeq ($(arch),$(filter $(arch),armv7 armv8 riscv64))
 		ifeq ($(OS),Android)
 			CXXFLAGS += -m$(bits)
-			LDFLAGS += -m$(bits) -static-libstdc++
+			LDFLAGS += -m$(bits)
 		endif
 		ifeq ($(ARCH),riscv64)
 			CXXFLAGS += -latomic
@@ -551,6 +546,11 @@ else
 	endif
 endif
 
+### Travis CI script uses COMPILER to overwrite CXX
+ifdef COMPILER
+	COMPCXX=$(COMPILER)
+endif
+
 ### Allow overwriting CXX from command line
 ifdef COMPCXX
 	CXX=$(COMPCXX)
@@ -600,7 +600,7 @@ ifeq ($(optimize),yes)
 
 	ifeq ($(comp),gcc)
 		ifeq ($(OS), Android)
-			CXXFLAGS += -fno-gcse -march=native
+			CXXFLAGS += -fno-gcse -mthumb -march=armv7-a -mfloat-abi=softfp
 		endif
 	endif
 
@@ -615,7 +615,7 @@ ifeq ($(optimize),yes)
 			endif
 		endif
 	endif
-###  -mcpu=native
+
 	ifeq ($(comp),clang)
 		clangmajorversion := $(shell $(CXX) -dumpversion 2>/dev/null | cut -f1 -d.)
 		ifeq ($(shell expr $(clangmajorversion) \< 16),1)
