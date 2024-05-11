@@ -72,7 +72,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity); 
     else {
         if (Eval::mediumNetOn) 
-            nnue = networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity);
+            nnue = networks.medium.evaluate(pos, &caches.big, true, &nnueComplexity);
         else 
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
     }
