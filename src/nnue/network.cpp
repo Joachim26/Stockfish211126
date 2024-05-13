@@ -46,11 +46,15 @@ namespace {
 // Note that this does not work in Microsoft Visual Studio.
 #if !defined(_MSC_VER) && !defined(NNUE_EMBEDDING_OFF)
 INCBIN(EmbeddedNNUEBig, EvalFileDefaultNameBig);
+INCBIN(EmbeddedNNUEMedium, EvalFileDefaultNameMedium);
 INCBIN(EmbeddedNNUESmall, EvalFileDefaultNameSmall);
 #else
 const unsigned char        gEmbeddedNNUEBigData[1]   = {0x0};
 const unsigned char* const gEmbeddedNNUEBigEnd       = &gEmbeddedNNUEBigData[1];
 const unsigned int         gEmbeddedNNUEBigSize      = 1;
+const unsigned char       gEmbeddedNNUEMediumData[1] = {0x0};
+const unsigned char* const gEmbeddedNNUEMediumEnd    = &gEmbeddedNNUEMediumData[1];
+const unsigned int         gEmbeddedNNUEMediumSize   = 1;
 const unsigned char        gEmbeddedNNUESmallData[1] = {0x0};
 const unsigned char* const gEmbeddedNNUESmallEnd     = &gEmbeddedNNUESmallData[1];
 const unsigned int         gEmbeddedNNUESmallSize    = 1;
@@ -73,6 +77,9 @@ using namespace Stockfish::Eval::NNUE;
 EmbeddedNNUE get_embedded(EmbeddedNNUEType type) {
     if (type == EmbeddedNNUEType::BIG)
         return EmbeddedNNUE(gEmbeddedNNUEBigData, gEmbeddedNNUEBigEnd, gEmbeddedNNUEBigSize);
+    if (type == EmbeddedNNUEType::MEDIUM)
+        return EmbeddedNNUE(gEmbeddedNNUEMediumData, gEmbeddedNNUEMediumEnd, gEmbeddedNNUEMediumSize);
+    //if (type == EmbeddedNNUEType::SMALL)
     else
         return EmbeddedNNUE(gEmbeddedNNUESmallData, gEmbeddedNNUESmallEnd, gEmbeddedNNUESmallSize);
 }
@@ -440,6 +447,10 @@ bool Network<Arch, Transformer>::write_parameters(std::ostream&      stream,
 template class Network<
   NetworkArchitecture<TransformedFeatureDimensionsBig, L2Big, L3Big>,
   FeatureTransformer<TransformedFeatureDimensionsBig, &StateInfo::accumulatorBig>>;
+
+template class Network<
+  NetworkArchitecture<TransformedFeatureDimensionsMedium, L2Medium, L3Medium>,
+  FeatureTransformer<TransformedFeatureDimensionsMedium, &StateInfo::accumulatorMedium>>;
 
 template class Network<
   NetworkArchitecture<TransformedFeatureDimensionsSmall, L2Small, L3Small>,

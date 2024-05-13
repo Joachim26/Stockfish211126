@@ -51,6 +51,7 @@ Engine::Engine(std::string path) :
     states(new std::deque<StateInfo>(1)),
     networks(NN::Networks(
       NN::NetworkBig({EvalFileDefaultNameBig, "None", ""}, NN::EmbeddedNNUEType::BIG),
+      NN::NetworkMedium({EvalFileDefaultNameMedium, "None", ""}, NN::EmbeddedNNUEType::MEDIUM),
       NN::NetworkSmall({EvalFileDefaultNameSmall, "None", ""}, NN::EmbeddedNNUEType::SMALL))) {
     pos.set(StartFEN, false, &states->back());
     capSq = SQ_NONE;
@@ -136,12 +137,14 @@ void Engine::set_ponderhit(bool b) { threads.main_manager()->ponder = b; }
 // network related
 
 void Engine::verify_networks() const {
-    networks.big.verify(options["EvalFile"]);
+    networks.big.verify(options["EvalFileBig"]);
+    networks.medium.verify(options["EvalFileMedium"]);
     networks.small.verify(options["EvalFileSmall"]);
 }
 
 void Engine::load_networks() {
-    load_big_network(options["EvalFile"]);
+    load_big_network(options["EvalFileBig"]);
+    load_medium_network(options["EvalFileMedium"]);
     load_small_network(options["EvalFileSmall"]);
 }
 
@@ -149,7 +152,12 @@ void Engine::load_big_network(const std::string& file) {
     networks.big.load(binaryDirectory, file);
     threads.clear();
 }
-
+  
+void Engine::load_medium_network(const std::string& file) {
+    networks.medium.load(binaryDirectory, file);
+    threads.clear();
+}
+  
 void Engine::load_small_network(const std::string& file) {
     networks.small.load(binaryDirectory, file);
     threads.clear();
@@ -157,7 +165,8 @@ void Engine::load_small_network(const std::string& file) {
 
 void Engine::save_network(const std::pair<std::optional<std::string>, std::string> files[2]) {
     networks.big.save(files[0].first);
-    networks.small.save(files[1].first);
+    networks.medium.save(files[1].first);
+    //networks.small.save(files[1].first); //comment out .medium. to save small
 }
 
 // utility functions
