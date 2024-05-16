@@ -68,20 +68,20 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     Value nnue;
   
-    if (smallNet) 
-        nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity); 
+    if (smallNet){ 
+        nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity);
+     
+        if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500)){
+            nnue = Eval::mediumNetOn ? networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity)
+                                     : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
+            smallNet = false;
+        }   
+    }
     else {
         if (Eval::mediumNetOn) 
             nnue = networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity);
         else 
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-    }
-
-    if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500))
-    {
-        nnue = Eval::mediumNetOn ? networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity)
-                                 : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-        smallNet = false;
     }
 
     const auto adjustEval = [&](int pawnCountMul, int shufflingConstant) {
