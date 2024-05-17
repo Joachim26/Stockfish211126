@@ -62,20 +62,12 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = std::abs(simpleEval) > SmallNetThreshold;
+    bool smallNet   = std::abs(simpleEval) > SmallNetThreshold + 6 * pos.count<PAWN>();
     int  nnueComplexity;
     int  v;
 
-<<<<<<< 7c_Main_SFNNv9.6.3
-    Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity)
-                          : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-
-    if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500))
-        nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-
-    const auto adjustEval = [&](int nnueDiv, int pawnCountMul, int evalDiv, int shufflingConstant) {
-=======
     Value nnue;
+  
     if (smallNet) 
             nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity); 
     else {
@@ -84,18 +76,19 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         else 
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
     }
+  
+    if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500)) {
+        nnue     = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
+        smallNet = false;
+    }
     
-    const auto adjustEval = [&](int nnueDiv, int pawnCountConstant, int pawnCountMul,
-                                int npmConstant, int evalDiv, int shufflingConstant) {
-
->>>>>>> Main_SFNNv9.6.3
+     const auto adjustEval = [&](int pawnCountMul, int shufflingConstant) {
         // Blend optimism and eval with nnue complexity and material imbalance
         optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 584;
-        nnue -= nnue * (nnueComplexity * 5 / 3) / nnueDiv;
+        nnue -= nnue * (nnueComplexity * 5 / 3) / 32395;
 
         int npm = pos.non_pawn_material() / 64;
-        v       = (nnue * (npm + 943 + pawnCountMul * pos.count<PAWN>()) + optimism * (npm + 140))
-          / evalDiv;
+        v = (nnue * (npm + 943 + pawnCountMul * pos.count<PAWN>()) + optimism * (npm + 140)) / 1058;
 
         // Damp down the evaluation linearly when shuffling
         int shuffling = pos.rule50_count();
@@ -103,9 +96,9 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     };
 
     if (!smallNet)
-        adjustEval(32395, 11, 1058, 178);
+        adjustEval(11, 178);
     else
-        adjustEval(32793, 9, 1067, 206);
+        adjustEval(9, 206);
 
     // SFnps Begin //
     if((NNUE::RandomEval) || (NNUE::WaitMs))
