@@ -68,21 +68,22 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     Value nnue;
   
-    if (smallNet) 
-            nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity); 
+    if (smallNet) {
+        nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity); 
+  
+        if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500)) {
+            nnue     = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
+            smallNet = false;
+        }
+    }
     else {
         if (Eval::mediumNetOn) 
             nnue = networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity); //funktioniert Cache? Nö &caches.medium
         else 
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
     }
-  
-    if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 500)) {
-        nnue     = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-        smallNet = false;
-    }
     
-     const auto adjustEval = [&](int pawnCountMul, int shufflingConstant) {
+    const auto adjustEval = [&](int pawnCountMul, int shufflingConstant) {
         // Blend optimism and eval with nnue complexity and material imbalance
         optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 584;
         nnue -= nnue * (nnueComplexity * 5 / 3) / 32395;
