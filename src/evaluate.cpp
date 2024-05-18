@@ -52,6 +52,11 @@ int Eval::simple_eval(const Position& pos, Color c) {
          + (pos.non_pawn_material(c) - pos.non_pawn_material(~c));
 }
 
+bool Eval::use_smallnet(const Position& pos) {
+    int simpleEval = simple_eval(pos, pos.side_to_move());
+    return std::abs(simpleEval) > 1126 + 6 * pos.count<PAWN>();
+}
+
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
 // of the position from the point of view of the side to move.
 Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
@@ -63,8 +68,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
 
-    bool smallNet   = (Stockfish::Eval::smallNetOn 
-                       || (std::abs(simpleEval) > SmallNetThreshold + 6 * pos.count<PAWN>()));
+    bool smallNet   = (Stockfish::Eval::smallNetOn || use_smallnet(pos));
    
     int  nnueComplexity;
     int  v;
@@ -78,23 +82,15 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
         smallNet = false;
     }
 
-    const auto adjustEval = [&](int pawnCountMul, int shufflingConstant) {
-        // Blend optimism and eval with nnue complexity and material imbalance
-        optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 584;
-        nnue -= nnue * (nnueComplexity * 5 / 3) / 32395;
+    // Blend optimism and eval with nnue complexity and material imbalance
+    optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 584;
+    nnue -= nnue * (nnueComplexity * 5 / 3) / 32395;
 
-        int npm = pos.non_pawn_material() / 64;
-        v = (nnue * (npm + 943 + pawnCountMul * pos.count<PAWN>()) + optimism * (npm + 140)) / 1058;
+    int npm = pos.non_pawn_material() / 64;
+    v       = (nnue * (npm + 943 + 11 * pos.count<PAWN>()) + optimism * (npm + 140)) / 1058;
 
-        // Damp down the evaluation linearly when shuffling
-        int shuffling = pos.rule50_count();
-        v             = v * (shufflingConstant - shuffling) / 207;
-    };
-
-    if (!smallNet)
-        adjustEval(11, 178);
-    else
-        adjustEval(9, 206);
+    // Damp down the evaluation linearly when shuffling
+    v = v * ((smallNet ? 206 : 178) - pos.rule50_count()) / 207;
 
     // SFnps Begin //
     if((NNUE::RandomEval) || (NNUE::WaitMs))
