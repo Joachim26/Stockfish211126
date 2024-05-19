@@ -166,8 +166,13 @@ void Search::Worker::start_searching() {
     
     int smallnetTH = int(options["Smallnet Threshold"]);
     SE::tmOptTime = main_manager()->tm.optimum();
-    SE::smallNetOn = (SE::tmOptTime < smallnetTH);
-    
+    //SE::smallNetOn = (SE::tmOptTime < smallnetTH);
+
+    if (SE::tmOptTime < smallnetTH || smallnetTH == 9999) 
+        SE::smallNetOn = true 
+    else 
+        SE::smallNetOn = false; 
+          
     std::cout << "OptimalTime " << SE::tmOptTime << sync_endl; 
 
     if (options["Search Nodes"]) limits.nodes = int(options["Search Nodes"]);
