@@ -169,7 +169,7 @@ void Search::Worker::start_searching() {
     //SE::smallNetOn = (SE::tmOptTime < smallnetTH);
 
     if (SE::tmOptTime < smallnetTH || smallnetTH == 9999) 
-        SE::smallNetOn = true 
+        SE::smallNetOn = true; 
     else 
         SE::smallNetOn = false; 
           
