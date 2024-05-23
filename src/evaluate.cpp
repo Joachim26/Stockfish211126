@@ -74,11 +74,11 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity)
                           : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-    
-    // NO FALLBACK from SFNNv5 net
 
-    // Blend optimism and eval with nnue complexity and material imbalance
-    optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 620;
+    // NO FALLBACK from SFNNv5 net
+  
+    // Blend optimism and eval with nnue complexity
+    optimism += optimism * nnueComplexity / 512;
     nnue -= nnue * (nnueComplexity * 5 / 3) / 32082;
 
     v = (nnue
