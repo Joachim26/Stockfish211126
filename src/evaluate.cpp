@@ -76,6 +76,7 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     if (smallNet){ 
         nnue = networks.small.evaluate(pos, &caches.small, true, &nnueComplexity);
      
+        // Re-evaluate the position when higher eval accuracy is worth the time spent
         if (smallNet && (nnue * simpleEval < 0)){
             nnue = Eval::mediumNetOn ? networks.medium.evaluate(pos, &caches.medium, true, &nnueComplexity)
                                      : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
@@ -89,8 +90,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
     }
 
-    // Blend optimism and eval with nnue complexity and material imbalance
-    optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 620;
+    // Blend optimism and eval with nnue complexity
+    optimism += optimism * nnueComplexity / 512;
     nnue -= nnue * (nnueComplexity * 5 / 3) / 32082;
 
     v = (nnue
