@@ -89,8 +89,8 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
             nnue = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
     }
     
-    // Blend optimism and eval with nnue complexity and material imbalance
-    optimism += optimism * (nnueComplexity + std::abs(simpleEval - nnue)) / 620;
+    // Blend optimism and eval with nnue complexity
+    optimism += optimism * nnueComplexity / 512;
     nnue -= nnue * (nnueComplexity * 5 / 3) / 32082;
 
     v = (nnue
