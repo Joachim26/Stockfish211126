@@ -186,9 +186,10 @@ void Engine::load_big_network(const std::string& file) {
 }
 
 void Engine::load_medium_network(const std::string& file) {
-    networks.medium.load(binaryDirectory, file);
+    networks.modify_and_replicate(
+      [this, &file](NN::Networks& networks_) { networks_.medium.load(binaryDirectory, file); });
     threads.clear();
-}  
+}
    
 void Engine::load_small_network(const std::string& file) {
     networks.modify_and_replicate(
