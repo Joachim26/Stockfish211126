@@ -47,7 +47,9 @@ void hint_common_parent_position(const Position&    pos,
                                  AccumulatorCaches& caches) {
     if (Eval::use_smallnet(pos))
         networks.small.hint_common_access(pos, &caches.small);
-    else
+    else if (Stockfish::Eval::mediumNetOn)
+        networks.medium.hint_common_access(pos, &caches.medium);  //funktioniert Cache? Nein &caches.medium,
+    else    
         networks.big.hint_common_access(pos, &caches.big);
 }
 
