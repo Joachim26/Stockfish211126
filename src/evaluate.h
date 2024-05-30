@@ -39,6 +39,8 @@ namespace Eval {
 namespace NNUE {
 struct Networks;
 struct AccumulatorCaches;
+extern int RandomEval;
+extern int WaitMs;
 }
 
 std::string trace(Position& pos, const Eval::NNUE::Networks& networks);
