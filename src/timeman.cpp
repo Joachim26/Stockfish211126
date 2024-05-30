@@ -44,8 +44,12 @@ void TimeManagement::advance_nodes_time(std::int64_t nodes) {
 // the bounds of time allowed for the current game ply. We currently support:
 //      1) x basetime (+ z increment)
 //      2) x moves in y seconds (+ z increment)
-void TimeManagement::init(
-  Search::LimitsType& limits, Color us, int ply, const OptionsMap& options, int& originalPly) {
+void TimeManagement::init(Search::LimitsType& limits,
+                          Color               us,
+                          int                 ply,
+                          const OptionsMap&   options,
+                          int&                originalPly,
+                          double&             originalTimeAdjust) {
     TimePoint npmsec = TimePoint(options["nodestime"]);
 
     // If we have no time, we don't need to fully initialize TM.
@@ -101,6 +105,10 @@ void TimeManagement::init(
     TimePoint timeLeft = std::max(TimePoint(1), limits.time[us] + limits.inc[us] * (mtg - 1)
                                                   - moveOverhead * (2 + mtg));
 
+    // Extra time according to timeLeft
+    if (originalTimeAdjust < 0)
+        originalTimeAdjust = 0.2078 + 0.1623 * std::log10(timeLeft);
+  
     // A user may scale time usage by setting UCI option "Slow Mover"
     // Default is 100 and changing this value will probably lose elo.
     timeLeft = slowMover * timeLeft / 100;
@@ -114,6 +122,7 @@ void TimeManagement::init(
         double optExtra = scaledInc < 500 ? 1.0 : 1.13;
         if (ply - originalPly < 2)
             optExtra *= 0.95;
+        optExtra *= originalTimeAdjust;
 
         // Calculate time constants based on current time left.
         double logTimeInSec = std::log10(scaledTime / 1000.0);
@@ -123,6 +132,7 @@ void TimeManagement::init(
         optScale = std::min(0.0122 + std::pow(ply + 2.95, 0.462) * optConstant,
                             0.213 * limits.time[us] / timeLeft)
                  * optExtra;
+
         maxScale = std::min(6.64, maxConstant + ply / 12.0);
     }
 
