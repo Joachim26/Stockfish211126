@@ -48,7 +48,6 @@ void TimeManagement::init(Search::LimitsType& limits,
                           Color               us,
                           int                 ply,
                           const OptionsMap&   options,
-                          int&                originalPly,
                           double&             originalTimeAdjust) {
     TimePoint npmsec = TimePoint(options["nodestime"]);
 
@@ -59,9 +58,6 @@ void TimeManagement::init(Search::LimitsType& limits,
 
     if (limits.time[us] == 0)
         return;
-
-    if (originalPly == -1)
-        originalPly = ply;
 
     TimePoint moveOverhead = TimePoint(options["Move Overhead"]);
     TimePoint slowMover    = TimePoint(options["Slow Mover"]);
@@ -105,10 +101,6 @@ void TimeManagement::init(Search::LimitsType& limits,
     TimePoint timeLeft = std::max(TimePoint(1), limits.time[us] + limits.inc[us] * (mtg - 1)
                                                   - moveOverhead * (2 + mtg));
 
-    // Extra time according to timeLeft
-    if (originalTimeAdjust < 0)
-        originalTimeAdjust = 0.2078 + 0.1623 * std::log10(timeLeft);
-
     // A user may scale time usage by setting UCI option "Slow Mover"
     // Default is 100 and changing this value will probably lose elo.
     timeLeft = slowMover * timeLeft / 100;
@@ -118,11 +110,9 @@ void TimeManagement::init(Search::LimitsType& limits,
     // game time for the current move, so also cap to a percentage of available game time.
     if (limits.movestogo == 0)
     {
-        // Use extra time with larger increments
-        double optExtra = scaledInc < 500 ? 1.0 : 1.13;
-        if (ply - originalPly < 2)
-            optExtra *= 0.95;
-        optExtra *= originalTimeAdjust;
+        // Extra time according to timeLeft
+        if (originalTimeAdjust < 0)
+            originalTimeAdjust = 0.3285 * std::log10(timeLeft) - 0.4830;
 
         // Calculate time constants based on current time left.
         double logTimeInSec = std::log10(scaledTime / 1000.0);
@@ -131,7 +121,7 @@ void TimeManagement::init(Search::LimitsType& limits,
 
         optScale = std::min(0.0122 + std::pow(ply + 2.95, 0.462) * optConstant,
                             0.213 * limits.time[us] / timeLeft)
-                 * optExtra;
+                 * originalTimeAdjust;
 
         maxScale = std::min(6.64, maxConstant + ply / 12.0);
     }
