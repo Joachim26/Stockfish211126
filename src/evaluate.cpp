@@ -29,13 +29,21 @@
 
 #include "nnue/network.h"
 #include "nnue/nnue_misc.h"
+#include <random>
+#include <chrono>
 #include "position.h"
 #include "types.h"
 #include "uci.h"
 #include "nnue/nnue_accumulator.h"
 
 namespace Stockfish {
+int Eval::NNUE::RandomEval = 0;
+int Eval::NNUE::WaitMs = 0;
 
+long long Eval::tmOptTime = 0;
+bool Eval::smallNetOn = false;
+//long long maxMatSmallNet;
+  
 // Returns a static, purely materialistic evaluation of the position from
 // the point of view of the given color. It can be divided by PawnValue to get
 // an approximation of the material advantage on the board in terms of pawns.
@@ -47,7 +55,7 @@ int Eval::simple_eval(const Position& pos, Color c) {
 bool Eval::use_smallnet(const Position& pos) {
     int simpleEval = simple_eval(pos, pos.side_to_move());
     int pawnCount  = pos.count<PAWN>();
-    return std::abs(simpleEval) > 992 + 6 * pawnCount * pawnCount / 16;
+    return std::abs(simpleEval) > 3 * PawnValue + 5 * pawnCount * pawnCount / 16;
 }
 
 // Evaluate is the evaluator for the outer world. It returns a static evaluation
@@ -60,20 +68,16 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
     assert(!pos.checkers());
 
     int  simpleEval = simple_eval(pos, pos.side_to_move());
-    bool smallNet   = use_smallnet(pos);
+    bool smallNet   = (Stockfish::Eval::smallNetOn || use_smallnet(pos));
+   
     int  nnueComplexity;
     int  v;
 
     Value nnue = smallNet ? networks.small.evaluate(pos, &caches.small, true, &nnueComplexity)
                           : networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
 
-    // Re-evaluate the position when higher eval accuracy is worth the time spent
-    if (smallNet && (nnue * simpleEval < 0 || std::abs(nnue) < 250))
-    {
-        nnue     = networks.big.evaluate(pos, &caches.big, true, &nnueComplexity);
-        smallNet = false;
-    }
-
+    // NO FALLBACK from SFNNv5 net
+  
     // Blend optimism and eval with nnue complexity
     optimism += optimism * nnueComplexity / 470;
     nnue -= nnue * nnueComplexity / 20000;
@@ -85,6 +89,21 @@ Value Eval::evaluate(const Eval::NNUE::Networks&    networks,
 
     // Damp down the evaluation linearly when shuffling
     v -= v * pos.rule50_count() / 212;
+
+    // SFnps Begin //
+    if((NNUE::RandomEval) || (NNUE::WaitMs))
+    {
+      // waitms millisecs
+      std::this_thread::sleep_for(std::chrono::milliseconds(NNUE::WaitMs));
+
+      // RandomEval
+      static thread_local std::mt19937_64 rng = [](){return std::mt19937_64(std::time(0));}();
+      std::normal_distribution<float> d(0.0, PawnValue);
+      float r = d(rng);
+      r = std::clamp<float>(r, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
+      v = (NNUE::RandomEval * Value(r) + (100 - NNUE::RandomEval) * v) / 100;
+    }
+    // SFnps End //
 
     // Guarantee evaluation does not hit the tablebase range
     v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
