@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "memory.h"
 #include "misc.h"
 #include "types.h"
 
@@ -95,7 +96,6 @@ class TranspositionTable {
 
    public:
     ~TranspositionTable() { aligned_large_pages_free(table); }
-
     void new_search() {
         // increment by delta to keep lower bits as is
         generation8 += GENERATION_DELTA;
