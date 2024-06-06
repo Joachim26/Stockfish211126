@@ -1,5 +1,5 @@
 
-<strong>[Note: This master branch is no more updated. Development of several renewed engine series has moved to the Main and Main_xxxx branches.](https://github.com/Joachim26/StockfishNPS/tree/Main)</strong>
+<strong>[Note: Apart from this Readme, this master branch is just Stockfish dev master. Development of several SFnps engine series has moved to the Main and Main_xxxx branches.](https://github.com/Joachim26/StockfishNPS/tree/Main)</strong>
 
 <div align="center">
 
