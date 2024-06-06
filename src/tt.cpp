@@ -24,7 +24,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "misc.h"
+#include "memory.h"
 #include "syzygy/tbprobe.h"
 #include "thread.h"
 
@@ -80,6 +80,7 @@ void TranspositionTable::resize(size_t mbSize, ThreadPool& threads) {
     clusterCount = mbSize * 1024 * 1024 / sizeof(Cluster);
 
     table = static_cast<Cluster*>(aligned_large_pages_alloc(clusterCount * sizeof(Cluster)));
+
     if (!table)
     {
         std::cerr << "Failed to allocate " << mbSize << "MB for transposition table." << std::endl;
