@@ -153,8 +153,8 @@ dotprod = no
 arm_version = 0
 STRIP = strip
 
-ifneq ($(shell which clang-format-17 2> /dev/null),)
-	CLANG-FORMAT = clang-format-17
+ifneq ($(shell which clang-format-18 2> /dev/null),)
+	CLANG-FORMAT = clang-format-18
 else
 	CLANG-FORMAT = clang-format
 endif
@@ -1051,14 +1051,14 @@ FORCE:
 
 clang-profile-make:
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACXXFLAGS='-fprofile-instr-generate ' \
-	EXTRALDFLAGS=' -fprofile-instr-generate' \
+	EXTRACXXFLAGS='-fprofile-generate ' \
+	EXTRALDFLAGS=' -fprofile-generate' \
 	all
 
 clang-profile-use:
 	$(XCRUN) llvm-profdata merge -output=stockfish.profdata *.profraw
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACXXFLAGS='-fprofile-instr-use=stockfish.profdata' \
+	EXTRACXXFLAGS='-fprofile-use=stockfish.profdata' \
 	EXTRALDFLAGS='-fprofile-use ' \
 	all
 
