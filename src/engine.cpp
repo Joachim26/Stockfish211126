@@ -80,8 +80,8 @@ Engine::Engine(std::string path) :
         return std::nullopt;
     });
 
-    options["Wait ms"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; });
-    options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; });
+    options["Wait ms"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; return std::nullopt; });
+    options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; return std::nullopt; });
     options["Search Nodes"] << Option(0, 0, 1000000);
     options["Search Depth"] << Option(0, 0, 20);
   
