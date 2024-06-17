@@ -317,7 +317,7 @@ void Search::Worker::iterative_deepening() {
             searchAgainCounter++;
 
         // MultiPV loop. We perform a full root search for each PV line
-        for (pvIdx = 0; pvIdx < multiPV && !threads.stop; ++pvIdx)
+        for (pvIdx = 0; pvIdx < multiPV; ++pvIdx)
         {
             if (pvIdx == pvLast)
             {
@@ -408,6 +408,9 @@ void Search::Worker::iterative_deepening() {
                 // below pick a proven score/PV for this thread (from the previous iteration).
                 && !(threads.abortedSearch && rootMoves[0].uciScore <= VALUE_TB_LOSS_IN_MAX_PLY))
                 main_manager()->pv(*this, threads, tt, rootDepth);
+
+            if (threads.stop)
+                break;
         }
 
         if (!threads.stop)
@@ -545,6 +548,9 @@ Value Search::Worker::search(
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
         return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta);
+
+    // Limit the depth if extensions made it too large
+    depth = std::min(depth, MAX_PLY - 1);
 
     // Check if we have an upcoming move that draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
@@ -1146,7 +1152,8 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~7 Elo)
         if (ss->ttPv)
-            r -= 1 + (ttData.value > alpha) + (ttData.depth >= depth);
+            r -= 1 + (ttData.value > alpha) + (ttData.depth >= depth)
+               - (PvNode && ttData.value < alpha && ttData.depth >= depth);
 
         // Decrease reduction for PvNodes (~0 Elo on STC, ~2 Elo on LTC)
         if (PvNode)
