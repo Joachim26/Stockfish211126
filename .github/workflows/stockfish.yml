@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       # returns null if no pre-release exists
       - name: Get Commit SHA of Latest Pre-release
@@ -64,6 +66,8 @@ jobs:
       arm_matrix: ${{ steps.set-arm-matrix.outputs.arm_matrix }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - id: set-matrix
         run: |
           TASKS=$(echo $(cat .github/ci/matrix.json) )
