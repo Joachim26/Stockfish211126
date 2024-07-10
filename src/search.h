@@ -202,10 +202,10 @@ class SearchManager: public ISearchManager {
 
     void check_time(Search::Worker& worker) override;
 
-    void pv(const Search::Worker&     worker,
+    void pv(Search::Worker&           worker,
             const ThreadPool&         threads,
             const TranspositionTable& tt,
-            Depth                     depth) const;
+            Depth                     depth);
 
     Stockfish::TimeManagement tm;
     double                    originalTimeAdjust;
@@ -247,7 +247,6 @@ class Worker {
     bool is_mainthread() const { return threadIdx == 0; }
 
     // Public because they need to be updatable by the stats
-    CounterMoveHistory    counterMoves;
     ButterflyHistory      mainHistory;
     CapturePieceToHistory captureHistory;
     ContinuationHistory   continuationHistory[2][2];
