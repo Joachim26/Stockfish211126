@@ -34,7 +34,6 @@ enum Stages {
     MAIN_TT,
     CAPTURE_INIT,
     GOOD_CAPTURE,
-    KILLER,
     QUIET_INIT,
     GOOD_QUIET,
     BAD_CAPTURE,
@@ -53,9 +52,7 @@ enum Stages {
     // generate qsearch moves
     QSEARCH_TT,
     QCAPTURE_INIT,
-    QCAPTURE,
-    QCHECK_INIT,
-    QCHECK
+    QCAPTURE
 };
 
 // Sort moves in descending order up to and including a given limit.
@@ -89,28 +86,6 @@ MovePicker::MovePicker(const Position&              p,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
-                       const PawnHistory*           ph,
-                       Move                         km) :
-    pos(p),
-    mainHistory(mh),
-    captureHistory(cph),
-    continuationHistory(ch),
-    pawnHistory(ph),
-    ttMove(ttm),
-    killer{km, 0},
-    depth(d) {
-    assert(d > 0);
-
-    stage = (pos.checkers() ? EVASION_TT : MAIN_TT) + !(ttm && pos.pseudo_legal(ttm));
-}
-
-// Constructor for quiescence search
-MovePicker::MovePicker(const Position&              p,
-                       Move                         ttm,
-                       Depth                        d,
-                       const ButterflyHistory*      mh,
-                       const CapturePieceToHistory* cph,
-                       const PieceToHistory**       ch,
                        const PawnHistory*           ph) :
     pos(p),
     mainHistory(mh),
@@ -119,9 +94,12 @@ MovePicker::MovePicker(const Position&              p,
     pawnHistory(ph),
     ttMove(ttm),
     depth(d) {
-    assert(d <= 0);
 
-    stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
+    if (pos.checkers())
+        stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
+
+    else
+        stage = (depth > 0 ? MAIN_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
 }
 
 // Constructor for ProbCut: we generate captures with SEE greater than or equal
@@ -270,16 +248,6 @@ top:
         ++stage;
         [[fallthrough]];
 
-    case KILLER :
-        // increment it before so if we aren't stuck here indefinitely
-        ++stage;
-
-        if (killer != ttMove && killer != Move::none() && !pos.capture_stage(killer)
-            && pos.pseudo_legal(killer))
-            return killer;
-
-        [[fallthrough]];
-
     case QUIET_INIT :
         if (!skipQuiets)
         {
@@ -294,7 +262,7 @@ top:
         [[fallthrough]];
 
     case GOOD_QUIET :
-        if (!skipQuiets && select<Next>([&]() { return *cur != killer; }))
+        if (!skipQuiets && select<Next>([]() { return true; }))
         {
             if ((cur - 1)->value > -7998 || (cur - 1)->value <= quiet_threshold(depth))
                 return *(cur - 1);
@@ -323,7 +291,7 @@ top:
 
     case BAD_QUIET :
         if (!skipQuiets)
-            return select<Next>([&]() { return *cur != killer; });
+            return select<Next>([]() { return true; });
 
         return Move::none();
 
@@ -342,24 +310,6 @@ top:
         return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
     case QCAPTURE :
-        if (select<Next>([]() { return true; }))
-            return *(cur - 1);
-
-        // If we found no move and the depth is too low to try checks, then we have finished
-        if (depth <= DEPTH_QS_NORMAL)
-            return Move::none();
-
-        ++stage;
-        [[fallthrough]];
-
-    case QCHECK_INIT :
-        cur      = moves;
-        endMoves = generate<QUIET_CHECKS>(pos, cur);
-
-        ++stage;
-        [[fallthrough]];
-
-    case QCHECK :
         return select<Next>([]() { return true; });
     }
 
