@@ -19,6 +19,7 @@
 #ifndef SEARCH_H_INCLUDED
 #define SEARCH_H_INCLUDED
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <cassert>
@@ -65,7 +66,6 @@ struct Stack {
     int             ply;
     Move            currentMove;
     Move            excludedMove;
-    Move            killers[2];
     Value           staticEval;
     int             statScore;
     int             moveCount;
@@ -180,6 +180,34 @@ struct InfoIteration {
     size_t           currmovenumber;
 };
 
+// Skill structure is used to implement strength limit. If we have a UCI_Elo,
+// we convert it to an appropriate skill level, anchored to the Stash engine.
+// This method is based on a fit of the Elo results for games played between
+// Stockfish at various skill levels and various versions of the Stash engine.
+// Skill 0 .. 19 now covers CCRL Blitz Elo from 1320 to 3190, approximately
+// Reference: https://github.com/vondele/Stockfish/commit/a08b8d4e9711c2
+struct Skill {
+    // Lowest and highest Elo ratings used in the skill level calculation
+    constexpr static int LowestElo  = 1320;
+    constexpr static int HighestElo = 3190;
+
+    Skill(int skill_level, int uci_elo) {
+        if (uci_elo)
+        {
+            double e = double(uci_elo - LowestElo) / (HighestElo - LowestElo);
+            level = std::clamp((((37.2473 * e - 40.8525) * e + 22.2943) * e - 0.311438), 0.0, 19.0);
+        }
+        else
+            level = double(skill_level);
+    }
+    bool enabled() const { return level < 20.0; }
+    bool time_to_pick(Depth depth) const { return depth == 1 + int(level); }
+    Move pick_best(const RootMoves&, size_t multiPV);
+
+    double level;
+    Move   best = Move::none();
+};
+
 // SearchManager manages the search from the main thread. It is responsible for
 // keeping track of the time, and storing data strictly related to the main thread.
 class SearchManager: public ISearchManager {
@@ -236,8 +264,8 @@ class Worker {
    public:
     Worker(SharedState&, std::unique_ptr<ISearchManager>, size_t, NumaReplicatedAccessToken);
 
-    // Called at instantiation to initialize Reductions tables
-    // Reset histories, usually before a new game
+    // Called at instantiation to initialize reductions tables.
+    // Reset histories, usually before a new game.
     void clear();
 
     // Called when the program receives the UCI 'go' command.
@@ -256,18 +284,17 @@ class Worker {
    private:
     void iterative_deepening();
 
-    // Main search function for both PV and non-PV nodes
+    // This is the main search function, for both PV and non-PV nodes
     template<NodeType nodeType>
     Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode);
 
     // Quiescence search function, which is called by the main search
     template<NodeType nodeType>
-    Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth = 0);
+    Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta);
 
     Depth reduction(bool i, Depth d, int mn, int delta) const;
 
-    // Get a pointer to the search manager, only allowed to be called by the
-    // main thread.
+    // Pointer to the search manager, only allowed to be called by the main thread
     SearchManager* main_manager() const {
         assert(threadIdx == 0);
         return static_cast<SearchManager*>(manager.get());
