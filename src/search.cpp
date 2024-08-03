@@ -127,6 +127,12 @@ Search::Worker::Worker(SharedState&                    sharedState,
     clear();
 }
 
+void Search::Worker::ensure_network_replicated() {
+    // Access once to force lazy initialization.
+    // We do this because we want to avoid initialization during search.
+    (void) (networks[numaAccessToken]);
+}
+
 void Search::Worker::start_searching() {
 
     // Non-main threads go directly to iterative_deepening()
@@ -1132,7 +1138,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
-            r += 2 - (ttData.depth >= depth && ss->ttPv) + (!ss->ttPv && move != ttData.move);
+            r += 2 - (ttData.depth >= depth && ss->ttPv) + !ss->ttPv;
 
         // Increase reduction if ttMove is a capture (~3 Elo)
         if (ttCapture)
