@@ -96,9 +96,11 @@ Engine::Engine(std::string path) :
     options["nodestime"] << Option(0, 0, 10000);
     options["UCI_Chess960"] << Option(false);
     options["UCI_LimitStrength"] << Option(false);
-    options["UCI_Elo"] << Option(1320, 1320, 3190);
+    options["UCI_Elo"] << Option(Stockfish::Search::Skill::LowestElo,
+                                 Stockfish::Search::Skill::LowestElo,
+                                 Stockfish::Search::Skill::HighestElo);
     options["UCI_ShowWDL"] << Option(false);
-    options["SyzygyPath"] << Option("<empty>", [](const Option& o) {
+    options["SyzygyPath"] << Option("", [](const Option& o) {
         Tablebases::init(o);
         return std::nullopt;
     });
@@ -207,6 +209,7 @@ void Engine::set_numa_config_from_option(const std::string& o) {
 
     // Force reallocation of threads in case affinities need to change.
     resize_threads();
+    threads.ensure_network_replicated();
 }
 
 void Engine::resize_threads() {
@@ -215,6 +218,7 @@ void Engine::resize_threads() {
 
     // Reallocate the hash with the new threadpool size
     set_tt_size(options["Hash"]);
+    threads.ensure_network_replicated();
 }
 
 void Engine::set_tt_size(size_t mb) {
@@ -237,18 +241,21 @@ void Engine::load_networks() {
         networks_.small.load(binaryDirectory, options["EvalFileSmall"]);
     });
     threads.clear();
+    threads.ensure_network_replicated();
 }
 
 void Engine::load_big_network(const std::string& file) {
     networks.modify_and_replicate(
       [this, &file](NN::Networks& networks_) { networks_.big.load(binaryDirectory, file); });
     threads.clear();
+    threads.ensure_network_replicated();
 }
 
 void Engine::load_small_network(const std::string& file) {
     networks.modify_and_replicate(
       [this, &file](NN::Networks& networks_) { networks_.small.load(binaryDirectory, file); });
     threads.clear();
+    threads.ensure_network_replicated();
 }
 
 void Engine::save_network(const std::pair<std::optional<std::string>, std::string> files[2]) {
