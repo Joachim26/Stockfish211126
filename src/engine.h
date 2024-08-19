@@ -49,7 +49,7 @@ class Engine {
 
     Engine(std::string path = "");
 
-    // Can't be movable due to components holding backreferences to fields
+    // Cannot be movable due to components holding backreferences to fields
     Engine(const Engine&)            = delete;
     Engine(Engine&&)                 = delete;
     Engine& operator=(const Engine&) = delete;
@@ -114,10 +114,10 @@ class Engine {
     StateListPtr states;
     Square       capSq;
 
-    OptionsMap                           options;
-    ThreadPool                           threads;
-    TranspositionTable                   tt;
-    NumaReplicated<Eval::NNUE::Networks> networks;
+    OptionsMap                               options;
+    ThreadPool                               threads;
+    TranspositionTable                       tt;
+    LazyNumaReplicated<Eval::NNUE::Networks> networks;
 
     Search::SearchManager::UpdateContext updateContext;
 };
