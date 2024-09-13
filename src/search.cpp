@@ -81,7 +81,10 @@ constexpr int futility_move_count(bool improving, Depth depth) {
 // Add correctionHistory value to raw staticEval and guarantee evaluation
 // does not hit the tablebase range.
 Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos) {
-    auto cv = w.correctionHistory[pos.side_to_move()][pawn_structure_index<Correction>(pos)];
+    const auto pcv =
+      w.pawnCorrectionHistory[pos.side_to_move()][pawn_structure_index<Correction>(pos)];
+    const auto mcv = w.materialCorrectionHistory[pos.side_to_move()][material_index(pos)];
+    const auto cv  = (2 * pcv + mcv) / 3;
     v += 66 * cv / 512;
     return std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
@@ -492,7 +495,8 @@ void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(-700);
     pawnHistory.fill(-1188);
-    correctionHistory.fill(0);
+    pawnCorrectionHistory.fill(0);
+    materialCorrectionHistory.fill(0);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
@@ -774,10 +778,9 @@ Value Search::Worker::search(
         return beta + (eval - beta) / 3;
 
     // Step 9. Null move search with verification search (~35 Elo)
-    if (cutNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14389
-        && eval >= beta && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
-        && beta > VALUE_TB_LOSS_IN_MAX_PLY)
+    if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
+        && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove && pos.non_pawn_material(us)
+        && ss->ply >= thisThread->nmpMinPly && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
         assert(eval - beta >= 0);
 
@@ -1141,18 +1144,17 @@ moves_loop:  // When in check, search starts here
         if (cutNode)
             r += 2 - (ttData.depth >= depth && ss->ttPv);
 
-        // Increase reduction if ttMove is a capture (~3 Elo)
-        if (ttCapture)
+        // Increase reduction if ttMove is a capture but the current move is not a capture (~3 Elo)
+        if (ttCapture && !capture)
             r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
             r += 1 + allNode;
 
-        // For first picked move (ttMove) reduce reduction, but never allow
-        // reduction to go below 0 (~3 Elo)
+        // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
-            r = std::max(0, r - 2);
+            r -= 2;
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1162,7 +1164,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore / 10898;
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
-        if (depth >= 2 && moveCount > 1 + (rootNode && depth < 10))
+        if (depth >= 2 && moveCount > 1)
         {
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
@@ -1352,7 +1354,7 @@ moves_loop:  // When in check, search starts here
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 304);
+        bonus += std::min(-(ss - 1)->statScore / 100, 304);
 
         bonus = std::max(bonus, 0);
 
@@ -1395,7 +1397,8 @@ moves_loop:  // When in check, search starts here
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        thisThread->materialCorrectionHistory[us][material_index(pos)] << bonus;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
