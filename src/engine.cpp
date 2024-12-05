@@ -76,6 +76,12 @@ Engine::Engine(std::optional<std::string> path) :
         return thread_allocation_information_as_string();
     });
 
+    options["Wait ms"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::WaitMs = o; return std::nullopt; });
+    options["Random Eval"] << Option(0, 0, 100, [](const Option& o) { Eval::NNUE::RandomEval = o; return std::nullopt; });
+    options["Search Nodes"] << Option(0, 0, 1000000);
+    options["Search Depth"] << Option(0, 0, 20);
+    options["Smallnet Threshold"] << Option(1750, 0, 10000);
+  
     options["Hash"] << Option(16, 1, MaxHashMB, [this](const Option& o) {
         set_tt_size(o);
         return std::nullopt;
