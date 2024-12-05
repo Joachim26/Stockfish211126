@@ -23,6 +23,7 @@
 #include <atomic>
 #include <cstdint>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <map>
@@ -582,7 +583,21 @@ class NumaConfig {
         // still no way to set thread affinity spanning multiple processor groups.
         // See https://learn.microsoft.com/en-us/windows/win32/procthread/numa-support
         // We also do this is if need to force old API for some reason.
-        if (STARTUP_USE_OLD_AFFINITY_API)
+        //
+        // 2024-08-26: It appears that we need to actually always force this behaviour.
+        // While Windows allows this to work now, such assignments have bad interaction
+        // with the scheduler - in particular it still prefers scheduling on the thread's
+        // "primary" node, even if it means scheduling SMT processors first.
+        // See https://github.com/official-stockfish/Stockfish/issues/5551
+        // See https://learn.microsoft.com/en-us/windows/win32/procthread/processor-groups
+        //
+        //     Each process is assigned a primary group at creation, and by default all
+        //     of its threads' primary group is the same. Each thread's ideal processor
+        //     is in the thread's primary group, so threads will preferentially be
+        //     scheduled to processors on their primary group, but they are able to
+        //     be scheduled to processors on any other group.
+        //
+        // used to be guarded by if (STARTUP_USE_OLD_AFFINITY_API)
         {
             NumaConfig splitCfg = empty();
 
@@ -639,7 +654,7 @@ class NumaConfig {
         NumaIndex n = 0;
         for (auto&& nodeStr : split(s, ":"))
         {
-            auto indices = indices_from_shortened_string(nodeStr);
+            auto indices = indices_from_shortened_string(std::string(nodeStr));
             if (!indices.empty())
             {
                 for (auto idx : indices)
@@ -1001,7 +1016,7 @@ class NumaConfig {
         if (s.empty())
             return indices;
 
-        for (const std::string& ss : split(s, ","))
+        for (const auto& ss : split(s, ","))
         {
             if (ss.empty())
                 continue;
@@ -1009,13 +1024,13 @@ class NumaConfig {
             auto parts = split(ss, "-");
             if (parts.size() == 1)
             {
-                const CpuIndex c = CpuIndex{str_to_size_t(parts[0])};
+                const CpuIndex c = CpuIndex{str_to_size_t(std::string(parts[0]))};
                 indices.emplace_back(c);
             }
             else if (parts.size() == 2)
             {
-                const CpuIndex cfirst = CpuIndex{str_to_size_t(parts[0])};
-                const CpuIndex clast  = CpuIndex{str_to_size_t(parts[1])};
+                const CpuIndex cfirst = CpuIndex{str_to_size_t(std::string(parts[0]))};
+                const CpuIndex clast  = CpuIndex{str_to_size_t(std::string(parts[1]))};
                 for (size_t c = cfirst; c <= clast; ++c)
                 {
                     indices.emplace_back(c);
