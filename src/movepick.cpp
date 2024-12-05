@@ -19,7 +19,9 @@
 #include "movepick.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
+#include <limits>
 #include <utility>
 
 #include "bitboard.h"
@@ -82,20 +84,20 @@ MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
                        Depth                        d,
                        const ButterflyHistory*      mh,
-                       const ButterflyHistory*      rh,
+                       const LowPlyHistory*         lph,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
-                       bool                         rn) :
+                       int                          pl) :
     pos(p),
     mainHistory(mh),
-    rootHistory(rh),
+    lowPlyHistory(lph),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
     depth(d),
-    rootNode(rn) {
+    ply(pl) {
 
     if (pos.checkers())
         stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
@@ -179,8 +181,8 @@ void MovePicker::score() {
                         : pt == ROOK && bool(to & threatenedByMinor) ? 24335
                                                                      : 0);
 
-            if (rootNode)
-                m.value += 4 * (*rootHistory)[pos.side_to_move()][m.from_to()];
+            if (ply < LOW_PLY_HISTORY_SIZE)
+                m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
         }
 
         else  // Type == EVASIONS
@@ -216,7 +218,7 @@ Move MovePicker::select(Pred filter) {
 // This is the most important method of the MovePicker class. We emit one
 // new pseudo-legal move on every call until there are no more moves left,
 // picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+Move MovePicker::next_move() {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
 
@@ -321,5 +323,7 @@ top:
     assert(false);
     return Move::none();  // Silence warning
 }
+
+void MovePicker::skip_quiet_moves() { skipQuiets = true; }
 
 }  // namespace Stockfish
