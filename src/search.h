@@ -1,6 +1,6 @@
 /*
   Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2024 The Stockfish developers (see AUTHORS file)
+  Copyright (C) 2004-2025 The Stockfish developers (see AUTHORS file)
 
   Stockfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -74,6 +74,7 @@ struct Stack {
     bool                        ttPv;
     bool                        ttHit;
     int                         cutoffCnt;
+    int                         reduction;
 };
 
 
@@ -126,7 +127,6 @@ struct LimitsType {
     int                      movestogo, depth, mate, perft, infinite;
     uint64_t                 nodes;
     bool                     ponderMode;
-    Square                   capSq;
 };
 
 
@@ -314,6 +314,8 @@ class Worker {
     TimePoint elapsed() const;
     TimePoint elapsed_time() const;
 
+    Value evaluate(const Position&);
+
     LimitsType limits;
 
     size_t                pvIdx, pvLast;
@@ -349,6 +351,11 @@ class Worker {
 
     friend class Stockfish::ThreadPool;
     friend class SearchManager;
+};
+
+struct ConthistBonus {
+    int index;
+    int weight;
 };
 
 
